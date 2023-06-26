@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
+import AddReminderModal from "../components/AddReminderModal";
 
 const Dashboard = () => {
-  const [show, setShow] = useState(null);
+  const [show, setShow] = useState(false);
   return (
     <div className="px-6 my-2 w-full">
       <div className="flex justify-around">
@@ -48,11 +49,15 @@ const Dashboard = () => {
                   Add Category
                 </p>
               </button>
-              <button className="inline-flex ml-1.5 items-start justify-start px-6 py-3 bg-indigo-700 hover:bg-indigo-600 focus:outline-none rounded">
+              <button
+                onClick={() => setShow(true)}
+                className="inline-flex ml-1.5 items-start justify-start px-6 py-3 bg-indigo-700 hover:bg-indigo-600 focus:outline-none rounded"
+              >
                 <p className="text-sm font-medium leading-none text-white">
                   New Reminder
                 </p>
               </button>
+              <AddReminderModal open={show} onClose={() => setShow(false)} />
             </div>
           </div>
         </div>
