@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
 import userRoutes from "./routes/userRoute.js";
+import reminderRoutes from "./routes/reminderRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -23,6 +24,7 @@ app.use(cookieParser());
 app.use(fileUpload({ useTempFiles: true }));
 
 app.use("/api/user", userRoutes);
+app.use("/api/reminder", reminderRoutes);
 
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();
