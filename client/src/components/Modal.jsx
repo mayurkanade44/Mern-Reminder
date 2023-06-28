@@ -7,8 +7,6 @@ const Modal = ({
   onClose,
   title,
   body,
-  actionLabel,
-  onSubmit,
   disabled,
   width,
   itemCenter,
@@ -50,9 +48,6 @@ const Modal = ({
                 <div className="text-lg font-semibold">{title}</div>
               </div>
               <div className="relative flex-auto">{body}</div>
-              <div className="flex flex-col px-5">
-                
-              </div>
             </div>
           </div>
         </div>

@@ -242,8 +242,6 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
       <Modal
         disabled={false}
         title="New Expiration Reminder"
-        actionLabel="Add"
-        onSubmit={handleSubmit}
         body={body}
         isOpen={open}
         onClose={onClose}

@@ -78,7 +78,7 @@ export const editReminder = async (req, res) => {
   const { id } = req.params;
   const { expirationDate, reminderDue, category, title, notes } = req.body;
   try {
-    const reminder = await Reminder.findById(id);
+    const reminder = await Reminder.findOne({ _id: id, user: req.user._id });
     if (!reminder) return res.status(404).json({ msg: "Not found" });
 
     let date = new Date(expirationDate);
@@ -119,6 +119,22 @@ export const editReminder = async (req, res) => {
     await reminder.save();
 
     return res.json({ msg: "Reminder updated" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};
+
+export const deleteReminder = async (req, res) => {
+  try {
+    const reminder = await Reminder.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+    if (!reminder) return res.status(404).json({ msg: "Not found" });
+
+    await Reminder.deleteOne({ _id: reminder._id });
+    return res.json({ msg: "Reminder removed" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later." });

@@ -29,6 +29,12 @@ export const reminderSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    deleteReminder: builder.mutation({
+      query: (id) => ({
+        url: `/api/reminder/singleReminder/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -37,4 +43,5 @@ export const {
   useAllRemindersQuery,
   useSingleReminderQuery,
   useUpdateReminderMutation,
+  useDeleteReminderMutation,
 } = reminderSlice;

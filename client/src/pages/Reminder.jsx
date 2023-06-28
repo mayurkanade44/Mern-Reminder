@@ -4,13 +4,15 @@ import { AiFillDelete, AiFillEdit } from "react-icons/ai";
 import FileSaver from "file-saver";
 import { handleReminder } from "../redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import AddReminderModal from "../components/AddReminderModal";
+import { useState } from "react";
+import { DeleteModal, AddReminderModal } from "../components";
 
 const Reminder = () => {
   const { id } = useParams();
-  const { reminderModal } = useSelector((store) => store.auth);
   const dispatch = useDispatch();
+  const { reminderModal } = useSelector((store) => store.auth);
   const { data, isLoading, refetch } = useSingleReminderQuery(id);
+  const [openDelete, setOpenDelete] = useState(false);
 
   const downloadMultipleFiles = (fileUrls) => {
     fileUrls.forEach((url) => {
@@ -31,6 +33,12 @@ const Reminder = () => {
         data={data}
         refetch={refetch}
       />
+      <DeleteModal
+        open={openDelete}
+        setOpen={setOpenDelete}
+        onClose={() => setOpenDelete(false)}
+        id={data?._id}
+      />
       <div className="my-6 lg:mt-10 mx-auto flex flex-col md:flex-row items-start md:items-center justify-between pb-4">
         <h4 className="text-2xl font-bold">{data?.title}</h4>
         <div className="mt-2 md:mt-0 flex">
@@ -40,7 +48,10 @@ const Reminder = () => {
           >
             Back
           </Link>
-          <button className="mr-3 flex bg-gray-200 dark:bg-red-600 rounded px-3 py-2 text-sm text-white">
+          <button
+            onClick={() => setOpenDelete(true)}
+            className="mr-3 flex bg-gray-200 dark:bg-red-600 rounded px-3 py-2 text-sm text-white"
+          >
             <AiFillDelete className="w-4 h-4 mt-0.5 mr-1.5" />
             Delete
           </button>
