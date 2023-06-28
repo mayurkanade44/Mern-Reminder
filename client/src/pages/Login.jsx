@@ -77,7 +77,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="focus:outline-none w-full sm:w-auto bg-indigo-700 transition duration-150 ease-in-out hover:bg-indigo-600 rounded text-white px-8 py-3 text-sm mt-6 disabled:bg-indigo-400"
+                className="focus:outline-none w-full sm:w-auto bg-indigo-700 text-white px-8 py-3 text-sm mt-6 disabled:bg-indigo-400 disabled:cursor-not-allowed"
               >
                 Login to Your Account
               </button>

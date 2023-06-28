@@ -2,6 +2,11 @@ import { v2 as cloudinary } from "cloudinary";
 import sgMail from "@sendgrid/mail";
 import fs from "fs";
 import jwt from "jsonwebtoken";
+import path from "path";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const capitalLetter = (phrase) => {
   return phrase
@@ -11,14 +16,17 @@ export const capitalLetter = (phrase) => {
     .join(" ");
 };
 
-export const files = async (filePath) => {
+export const uploadFiles = async (file) => {
   try {
-    const result = await cloudinary.uploader.upload(filePath, {
+    const docFile = file;
+    const docPath = path.join(__dirname, "../tmp/" + `${docFile.name}`);
+    await docFile.mv(docPath);
+    const result = await cloudinary.uploader.upload(`tmp/${docFile.name}`, {
+      resource_type: "raw",
       use_filename: true,
       folder: "reminder",
     });
-    fs.unlinkSync(filePath);
-
+    fs.unlinkSync(`./tmp/${docFile.name}`);
     return result.secure_url;
   } catch (error) {
     console.log(error);

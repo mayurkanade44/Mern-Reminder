@@ -1,5 +1,5 @@
 import Reminder from "../models/reminderModel.js";
-import { capitalLetter } from "../utils/helper.js";
+import { capitalLetter, uploadFiles } from "../utils/helper.js";
 
 export const addReminder = async (req, res) => {
   const { title, category, expirationDate, reminderDue } = req.body;
@@ -15,9 +15,24 @@ export const addReminder = async (req, res) => {
       expiryMonths.push(new Date(date.getFullYear(), date.getMonth() - i, 3));
     }
 
+    const docsLinks = [];
+    if (req.files) {
+      const docs = req.files.documents;
+      for (let i = 0; i < docs.length; i++) {
+        const link = await uploadFiles(docs[i]);
+        if (!link)
+          return res
+            .status(400)
+            .json({ msg: "Server error, please try again later" });
+
+        docsLinks.push(link);
+      }
+    }
+
     req.body.title = capitalLetter(title);
     req.body.expiryMonths = expiryMonths;
     req.body.user = "649a9de329b62357a28e6e54";
+    req.body.documents = docsLinks;
 
     const reminder = await Reminder.create(req.body);
 
