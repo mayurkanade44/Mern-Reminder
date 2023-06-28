@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Modal from "./Modal";
 import { useNewReminderMutation } from "../redux/reminderSlice";
+import { toast } from "react-toastify";
 
 const initialState = {
   title: "",
@@ -24,7 +25,7 @@ const AddReminderModal = ({ open, onClose }) => {
     form.set("title", formValue.title);
     form.set("category", formValue.category);
     form.set("expirationDate", new Date(formValue.expirationDate));
-    form.set("reminderDue", Number(formValue.reminderDue));
+    form.set("reminderDue", formValue.reminderDue);
     form.set("notes", formValue.notes);
     form.set("autoRenew", formValue.autoRenew);
     formValue.documents.forEach((file) => {
@@ -35,9 +36,10 @@ const AddReminderModal = ({ open, onClose }) => {
       const res = await newReminder(form).unwrap();
       onClose();
       setFormValue(initialState);
-      console.log(res);
+      toast.success(res.msg);
     } catch (error) {
       console.log(error);
+      toast.error(error?.data?.msg || error.error);
     }
   };
 

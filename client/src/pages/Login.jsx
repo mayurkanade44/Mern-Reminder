@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { useLoginMutation } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import { setCredentials } from "../redux/authSlice";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -21,8 +22,10 @@ const Login = () => {
       const res = await login(data).unwrap();
       dispatch(setCredentials(res));
       navigate("/dashboard");
+      toast.success(res.msg);
     } catch (error) {
       console.log(error);
+      toast.error(error?.data?.msg || error.error);
     }
   };
   return (
