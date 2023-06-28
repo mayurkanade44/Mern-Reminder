@@ -1,11 +1,16 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useSingleReminderQuery } from "../redux/reminderSlice";
 import { AiFillDelete, AiFillEdit } from "react-icons/ai";
 import FileSaver from "file-saver";
+import { handleReminder } from "../redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import AddReminderModal from "../components/AddReminderModal";
 
 const Reminder = () => {
   const { id } = useParams();
-  const { data, isLoading } = useSingleReminderQuery(id);
+  const { reminderModal } = useSelector((store) => store.auth);
+  const dispatch = useDispatch();
+  const { data, isLoading, refetch } = useSingleReminderQuery(id);
 
   const downloadMultipleFiles = (fileUrls) => {
     fileUrls.forEach((url) => {
@@ -17,20 +22,32 @@ const Reminder = () => {
         .catch((error) => console.log(error));
     });
   };
-  console.log(data);
+
   return (
     <div className="mx-4 lg:mx-60">
+      <AddReminderModal
+        open={reminderModal.show}
+        onClose={() => dispatch(handleReminder({ show: false, edit: false }))}
+        data={data}
+        refetch={refetch}
+      />
       <div className="my-6 lg:mt-10 mx-auto flex flex-col md:flex-row items-start md:items-center justify-between pb-4">
         <h4 className="text-2xl font-bold">{data?.title}</h4>
         <div className="mt-2 md:mt-0 flex">
-          <button className="mr-3 text-white bg-gray-200 dark:bg-gray-700 focus:outline-none transition duration-150 ease-in-out rounded hover:bg-gray-300 dark:hover:bg-gray-600 px-5 py-2 text-sm">
+          <Link
+            to="/dashboard"
+            className="mr-3 text-white bg-gray-200 dark:bg-gray-700 focus:outline-none transition duration-150 ease-in-out rounded hover:bg-gray-300 dark:hover:bg-gray-600 px-5 py-2 text-sm"
+          >
             Back
-          </button>
+          </Link>
           <button className="mr-3 flex bg-gray-200 dark:bg-red-600 rounded px-3 py-2 text-sm text-white">
             <AiFillDelete className="w-4 h-4 mt-0.5 mr-1.5" />
             Delete
           </button>
-          <button className="flex hover:bg-indigo-600 bg-indigo-700 rounded text-white px-3 py-2 text-sm">
+          <button
+            onClick={() => dispatch(handleReminder({ show: true, edit: true }))}
+            className="flex hover:bg-indigo-600 bg-indigo-700 rounded text-white px-3 py-2 text-sm"
+          >
             <AiFillEdit className="w-4 h-4 mt-0.5 mr-1.5" />
             Edit Reminder
           </button>

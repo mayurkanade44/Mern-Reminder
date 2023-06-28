@@ -22,6 +22,13 @@ export const reminderSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["Reminder"],
     }),
+    updateReminder: builder.mutation({
+      query: ({ data, id }) => ({
+        url: `/api/reminder/singleReminder/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -29,4 +36,5 @@ export const {
   useNewReminderMutation,
   useAllRemindersQuery,
   useSingleReminderQuery,
+  useUpdateReminderMutation,
 } = reminderSlice;

@@ -73,3 +73,54 @@ export const singleReminder = async (req, res) => {
     return res.status(500).json({ msg: "Server error, try again later." });
   }
 };
+
+export const editReminder = async (req, res) => {
+  const { id } = req.params;
+  const { expirationDate, reminderDue, category, title, notes } = req.body;
+  try {
+    const reminder = await Reminder.findById(id);
+    if (!reminder) return res.status(404).json({ msg: "Not found" });
+
+    let date = new Date(expirationDate);
+    const expiryMonths = [];
+
+    for (let i = 1; i <= Number(reminderDue); i++) {
+      expiryMonths.push(
+        new Date(date.getFullYear(), date.getMonth() - i, 3)
+          .toISOString()
+          .split("T")[0]
+      );
+    }
+
+    const docsLinks = [];
+    if (req.files) {
+      let docs = [];
+      if (req.files.documents.length > 0) docs = req.files.documents;
+      else docs.push(req.files.documents);
+
+      for (let i = 0; i < docs.length; i++) {
+        const link = await uploadFiles(docs[i]);
+        if (!link)
+          return res
+            .status(400)
+            .json({ msg: "Upload Server error, please try again later" });
+
+        docsLinks.push(link);
+      }
+      reminder.documents = docsLinks;
+    }
+
+    reminder.title = capitalLetter(title);
+    reminder.expiryMonths = expiryMonths;
+    reminder.category = category;
+    reminder.expirationDate = expirationDate;
+    reminder.notes = notes;
+
+    await reminder.save();
+
+    return res.json({ msg: "Reminder updated" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};

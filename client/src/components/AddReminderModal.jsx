@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "./Modal";
-import { useNewReminderMutation } from "../redux/reminderSlice";
+import {
+  useNewReminderMutation,
+  useUpdateReminderMutation,
+} from "../redux/reminderSlice";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 const initialState = {
   title: "",
@@ -13,9 +17,28 @@ const initialState = {
   autoRenew: false,
 };
 
-const AddReminderModal = ({ open, onClose }) => {
+const AddReminderModal = ({ open, onClose, data, refetch }) => {
   const [formValue, setFormValue] = useState(initialState);
   const [newReminder, { isLoading }] = useNewReminderMutation();
+  const { reminderModal } = useSelector((store) => store.auth);
+  const [updateReminder, { isLoading: updateLoading }] =
+    useUpdateReminderMutation();
+
+  useEffect(() => {
+    if (reminderModal.edit) {
+      setFormValue({
+        title: data?.title,
+        category: data.category,
+        notes: data.notes,
+        expirationDate: new Date(data.expirationDate)
+          .toISOString()
+          .slice(0, 10),
+        reminderDue: data.expiryMonths.length,
+        documents: [],
+        autoRenew: false,
+      });
+    }
+  }, [reminderModal.edit]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,10 +56,16 @@ const AddReminderModal = ({ open, onClose }) => {
     });
 
     try {
-      const res = await newReminder(form).unwrap();
-      onClose();
+      let res;
+      if (reminderModal.edit) {
+        res = await updateReminder({ data: form, id: data._id }).unwrap();
+      } else {
+        res = await newReminder(form).unwrap();
+      }
+      refetch();
       setFormValue(initialState);
       toast.success(res.msg);
+      onClose();
     } catch (error) {
       console.log(error);
       toast.error(error?.data?.msg || error.error);
@@ -199,9 +228,9 @@ const AddReminderModal = ({ open, onClose }) => {
           <button
             className="bg-green-800 text-white font-bold text-lg py-1 mb-2 px-4 rounded-lg disabled:opacity-70 disabled:cursor-not-allowed"
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || updateLoading}
           >
-            Add Reminder
+            {reminderModal.edit ? "Update" : "Add Reminder"}
           </button>
         </div>
       </form>

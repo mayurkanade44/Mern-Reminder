@@ -3,10 +3,13 @@ import { AiOutlineSearch } from "react-icons/ai";
 import AddReminderModal from "../components/AddReminderModal";
 import { useAllRemindersQuery } from "../redux/reminderSlice";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { handleReminder } from "../redux/authSlice";
 
 const Dashboard = () => {
-  const [show, setShow] = useState(false);
-  const { data, isLoading } = useAllRemindersQuery();
+  const { reminderModal } = useSelector((store) => store.auth);
+  const { data, isLoading, refetch } = useAllRemindersQuery();
+  const dispatch = useDispatch();
 
   return (
     <div className="px-6 my-2 w-full">
@@ -54,14 +57,22 @@ const Dashboard = () => {
                 </p>
               </button>
               <button
-                onClick={() => setShow(true)}
+                onClick={() =>
+                  dispatch(handleReminder({ show: true, edit: false }))
+                }
                 className="inline-flex ml-1.5 items-start justify-start px-6 py-3 bg-indigo-700 hover:bg-indigo-600 focus:outline-none rounded"
               >
                 <p className="text-sm font-medium leading-none text-white">
                   New Reminder
                 </p>
               </button>
-              <AddReminderModal open={show} onClose={() => setShow(false)} />
+              <AddReminderModal
+                open={reminderModal.show}
+                refetch={refetch}
+                onClose={() =>
+                  dispatch(handleReminder({ show: false, edit: false }))
+                }
+              />
             </div>
           </div>
         </div>
