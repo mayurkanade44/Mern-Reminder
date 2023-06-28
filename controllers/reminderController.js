@@ -49,3 +49,27 @@ export const addReminder = async (req, res) => {
     return res.status(500).json({ msg: "Server error, try again later." });
   }
 };
+
+export const allReminders = async (req, res) => {
+  try {
+    const reminders = await Reminder.find({ user: req.user._id });
+
+    return res.json(reminders);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};
+
+export const singleReminder = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const reminder = await Reminder.findById(id);
+    if (!reminder) return res.status(404).json({ msg: "Not found" });
+
+    return res.json(reminder);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};

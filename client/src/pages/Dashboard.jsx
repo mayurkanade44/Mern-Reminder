@@ -1,21 +1,25 @@
 import { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import AddReminderModal from "../components/AddReminderModal";
+import { useAllRemindersQuery } from "../redux/reminderSlice";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const [show, setShow] = useState(false);
+  const { data, isLoading } = useAllRemindersQuery();
+
   return (
     <div className="px-6 my-2 w-full">
       <div className="flex justify-around">
-        <div className="h-20 w-60 bg-green-500 flex flex-col items-center justify-center">
+        <div className="h-20 w-60 bg-green-500 flex flex-col items-center justify-center rounded-lg">
           <h4 className="text-2xl font-bold text-white">Total</h4>
           <h4 className="text-2xl font-semibold text-black">1000</h4>
         </div>
-        <div className="h-20 w-60 bg-red-500 flex flex-col items-center justify-center">
+        <div className="h-20 w-60 bg-red-500 flex flex-col items-center justify-center rounded-lg">
           <h4 className="text-2xl font-bold text-white">Expired</h4>
           <h4 className="text-2xl font-semibold text-black">10</h4>
         </div>
-        <div className="h-20 w-60 bg-cyan-400 flex flex-col items-center justify-center">
+        <div className="h-20 w-60 bg-cyan-400 flex flex-col items-center justify-center rounded-lg">
           <h4 className="text-2xl font-bold text-white">Month</h4>
           <h4 className="text-2xl font-semibold text-black">20</h4>
         </div>
@@ -65,9 +69,8 @@ const Dashboard = () => {
       <div className="bg-white px-4 md:px-8 xl:px-10 overflow-x-auto">
         <table className="w-full whitespace-nowrap">
           <thead>
-            <tr className="h-20 w-full text-sm leading-none text-gray-600">
-              <th className="font-bold text-left pl-4">#</th>
-              <th className="font-bold text-left pl-11">Title</th>
+            <tr className="h-16 w-full text-md leading-none text-gray-600">
+              <th className="font-bold text-left pl-5">Title</th>
               <th className="font-bold text-left pl-9">Category</th>
               <th className="font-bold text-left">Expiry Date</th>
               <th className="font-bold text-left">Notes</th>
@@ -75,28 +78,44 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody className="w-full">
-            <tr className="h-14 text-sm leading-none text-gray-700 border-b border-t border-gray-200 bg-white hover:bg-gray-100">
-              <td className="pl-4">1</td>
-              <td className="pl-11">
-                <div className="">Miracle Botos</div>
-              </td>
-              <td>
-                <p className="mr-16 pl-10">28</p>
-              </td>
-              <td>
-                <p className="mr-16">06/02/2020</p>
-              </td>
-              <td>
-                <p className="mr-16">asdhbgjadsh a ajbsdkjad b</p>
-              </td>
-              <td>
-                <div className="flex items-center">
-                  <button className="bg-black mr-3 py-2.5 px-5 rounded text-sm leading-3 text-white focus:outline-none">
-                    Details
-                  </button>
-                </div>
-              </td>
-            </tr>
+            {data?.map((reminder, index) => (
+              <tr
+                key={reminder._id}
+                className="h-14 text-sm leading-none text-gray-700 border-b border-t border-gray-200 bg-white hover:bg-gray-100"
+              >
+                <td className="pl-5">
+                  <h1>{reminder.title}</h1>
+                </td>
+                <td className="mr-16 pl-10">
+                  <p>{reminder.category}</p>
+                </td>
+                <td>
+                  <p className="mr-6">
+                    {new Date(reminder.expirationDate).toLocaleDateString(
+                      "en-IN",
+                      {
+                        day: "numeric",
+                        month: "numeric",
+                        year: "numeric",
+                      }
+                    )}
+                  </p>
+                </td>
+                <td>
+                  <p className="mr-10">{reminder.notes}</p>
+                </td>
+                <td>
+                  <div className="flex items-center">
+                    <Link
+                      to={`/reminder/${reminder._id}`}
+                      className="bg-black mr-3 py-2.5 px-5 rounded text-sm leading-3 text-white focus:outline-none"
+                    >
+                      Details
+                    </Link>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

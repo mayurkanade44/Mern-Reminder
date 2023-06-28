@@ -9,7 +9,24 @@ export const reminderSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    allReminders: builder.query({
+      query: () => ({
+        url: "/api/reminder/allReminders",
+      }),
+      keepUnusedDataFor: 5,
+      providesTags: ["Reminders"],
+    }),
+    singleReminder: builder.query({
+      query: (id) => ({
+        url: `/api/reminder/singleReminder/${id}`,
+      }),
+      providesTags: ["Reminder"],
+    }),
   }),
 });
 
-export const { useNewReminderMutation } = reminderSlice;
+export const {
+  useNewReminderMutation,
+  useAllRemindersQuery,
+  useSingleReminderQuery,
+} = reminderSlice;
