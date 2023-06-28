@@ -31,7 +31,7 @@ export const addReminder = async (req, res) => {
 
     req.body.title = capitalLetter(title);
     req.body.expiryMonths = expiryMonths;
-    req.body.user = "649a9de329b62357a28e6e54";
+    req.body.user = req.user._id
     req.body.documents = docsLinks;
 
     const reminder = await Reminder.create(req.body);
