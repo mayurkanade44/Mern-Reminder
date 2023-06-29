@@ -7,11 +7,12 @@ const UserSchema = new mongoose.Schema(
     email: { type: String, required: true },
     password: { type: String },
     emailList: [String],
-    categories: [String],
+    categories: { type: Array, default: ["Driving License", "Rent Agreement"] },
     passwordToken: { type: String },
     resetPasswordExpiry: { type: Date },
     verificationToken: { type: String },
     isVerified: { type: Boolean, default: false },
+    reminderFile: { type: String },
   },
   { timestamps: true, toObject: { virtuals: true } }
 );
@@ -25,5 +26,11 @@ UserSchema.pre("save", async function () {
 UserSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
+
+UserSchema.virtual("reminders", {
+  ref: "Reminder",
+  localField: "_id",
+  foreignField: "user",
+});
 
 export default mongoose.model("User", UserSchema);

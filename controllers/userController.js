@@ -24,13 +24,11 @@ export const registerUser = async (req, res) => {
     if (!mail)
       return res.status(500).json({ msg: "Server error, try again later." });
 
-    const categories = ["Driving License", "Rent Agreement"];
-
     await User.create({
       name: newName,
       email,
       verificationToken,
-      categories,
+      emailList: [email],
     });
 
     return res.status(201).json({
@@ -58,7 +56,7 @@ export const verifyUser = async (req, res) => {
     user.isVerified = true;
     user.verificationToken = null;
     user.password = password;
-    user.emailList = emailList.push(email);
+    emailList.map((email) => user.emailList.push(email));
 
     await user.save();
 

@@ -1,5 +1,9 @@
 import Reminder from "../models/reminderModel.js";
+import User from "../models/userModel.js";
 import { capitalLetter, uploadFiles } from "../utils/helper.js";
+import exceljs from "exceljs";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 export const addReminder = async (req, res) => {
   const { title, category, expirationDate, reminderDue } = req.body;
@@ -135,6 +139,75 @@ export const deleteReminder = async (req, res) => {
 
     await Reminder.deleteOne({ _id: reminder._id });
     return res.json({ msg: "Reminder removed" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};
+
+export const reminderAlert = async (req, res) => {
+  try {
+    const date = new Date().toISOString().split("T")[0];
+
+    const allUsers = await User.find()
+      .populate({
+        path: "reminders",
+        match: { expiryMonths: { $in: [date] } },
+      })
+      .select("name emailList reminders");
+
+    for (let user of allUsers) {
+      if (user.reminders.length) {
+        const reminders = user.reminders;
+
+        const workbook = new exceljs.Workbook();
+        let worksheet = workbook.addWorksheet("Sheet1");
+
+        worksheet.columns = [
+          { header: "Title", key: "title" },
+          { header: "Category", key: "category" },
+          { header: "Expiration Date", key: "expirationDate" },
+          { header: "Notes", key: "notes" },
+          { header: "Attached Documents", key: "documents" },
+          { header: "Auto Renew", key: "autoRenew" },
+        ];
+
+        reminders.map((item) => {
+          worksheet.addRow({
+            title: item.title,
+            category: item.category,
+            expirationDate: item.expirationDate,
+            notes: item.notes,
+            autoRenew: item.autoRenew,
+            documents: item.documents.length && {
+              text: "Document",
+              hyperlink: item.documents[0],
+            },
+          });
+        });
+
+        await workbook.xlsx.writeFile(`./tmp/${user.name}.xlsx`);
+
+        const result = await cloudinary.uploader.upload(
+          `tmp/${user.name}.xlsx`,
+          {
+            resource_type: "raw",
+            use_filename: true,
+            folder: "reminder",
+          }
+        );
+
+        await User.findByIdAndUpdate(
+          user._id,
+          { reminderFile: result.secure_url },
+          { new: true, runValidators: true }
+        );
+
+        fs.unlinkSync(`./tmp/${user.name}.xlsx`);
+      }
+    }
+
+    return res.json({ msg: "ok" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later." });

@@ -75,7 +75,6 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
   };
 
   const dueMonths = [1, 2, 3];
-  console.log(categories);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

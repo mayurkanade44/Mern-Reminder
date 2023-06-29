@@ -4,6 +4,7 @@ import {
   allReminders,
   deleteReminder,
   editReminder,
+  reminderAlert,
   singleReminder,
 } from "../controllers/reminderController.js";
 import { authenticateUser } from "../middleware/authMiddleware.js";
@@ -16,5 +17,6 @@ router
   .get(authenticateUser, singleReminder)
   .patch(authenticateUser, editReminder)
   .delete(authenticateUser, deleteReminder);
+router.route("/alert").get(reminderAlert);
 
 export default router;
