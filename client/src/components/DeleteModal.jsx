@@ -1,13 +1,16 @@
 import { AiOutlineDelete } from "react-icons/ai";
 import Modal from "./Modal";
-import { useDispatch } from "react-redux";
-import { useDeleteReminderMutation } from "../redux/reminderSlice";
+import {
+  useAllRemindersQuery,
+  useDeleteReminderMutation,
+} from "../redux/reminderSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const DeleteModal = ({ open, setOpen, onClose, id }) => {
   const navigate = useNavigate();
-  const [deleteReminder] = useDeleteReminderMutation();
+  const [deleteReminder, { isLoading }] = useDeleteReminderMutation();
+
   const handleDelete = async () => {
     try {
       const res = await deleteReminder(id).unwrap();
@@ -15,6 +18,7 @@ const DeleteModal = ({ open, setOpen, onClose, id }) => {
       navigate("/dashboard");
     } catch (error) {
       console.log(error);
+      toast.error(error?.data?.msg || error.error);
     }
   };
   const body = (
@@ -29,7 +33,8 @@ const DeleteModal = ({ open, setOpen, onClose, id }) => {
       <div className="flex gap-4">
         <div
           onClick={handleDelete}
-          className="btn bg-red-700 w-full rounded-md text-white py-1 cursor-pointer"
+          disabled={isLoading}
+          className="btn bg-red-700 w-full rounded-md text-white py-1 cursor-pointer disabled:cursor-not-allowed"
         >
           Delete
         </div>

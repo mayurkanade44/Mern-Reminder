@@ -8,7 +8,7 @@ import { handleReminder } from "../redux/authSlice";
 
 const Dashboard = () => {
   const { reminderModal } = useSelector((store) => store.auth);
-  const { data, isLoading, refetch } = useAllRemindersQuery();
+  const { data, isLoading, refetch } = useAllRemindersQuery({ skip: true });
   const dispatch = useDispatch();
 
   return (
