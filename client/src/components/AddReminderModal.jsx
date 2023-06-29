@@ -6,6 +6,7 @@ import {
 } from "../redux/reminderSlice";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import { useAllCategoriesQuery } from "../redux/userSlice";
 
 const initialState = {
   title: "",
@@ -23,6 +24,7 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
   const { reminderModal } = useSelector((store) => store.auth);
   const [updateReminder, { isLoading: updateLoading }] =
     useUpdateReminderMutation();
+  const { data: categories } = useAllCategoriesQuery();
 
   useEffect(() => {
     if (reminderModal.edit) {
@@ -72,8 +74,8 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
     }
   };
 
-  const categories = ["Driving License", "Rent Agreement"];
   const dueMonths = [1, 2, 3];
+  console.log(categories);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -123,7 +125,7 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
               className="border w-full border-gray-300 dark:border-gray-700 pl-2 py-1 shadow-sm rounded text-sm focus:outline-none focus:border-indigo-700 "
               placeholder="Enter reminder title"
             >
-              {categories.map((data) => {
+              {categories?.map((data) => {
                 return (
                   <option value={data} key={data}>
                     {data}
@@ -245,7 +247,7 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
         body={body}
         isOpen={open}
         onClose={onClose}
-        width="relative w-full mt-40 md:mt-2 md:w-5/6 lg:w-3/6  my-6 mx-auto h-full lg:h-auto md:h-auto"
+        width="relative w-full mx-3 mt-40 md:mt-2 md:w-5/6 lg:w-3/6 h-full lg:h-auto md:h-auto"
         itemCenter="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-neutral-800/70"
       />
     </div>

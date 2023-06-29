@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
-import AddReminderModal from "../components/AddReminderModal";
+import { AddReminderModal, CategoryModal } from "../components";
 import { useAllRemindersQuery } from "../redux/reminderSlice";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,6 +10,8 @@ const Dashboard = () => {
   const { reminderModal } = useSelector((store) => store.auth);
   const { data, isLoading, refetch } = useAllRemindersQuery({ skip: true });
   const dispatch = useDispatch();
+
+  const [openCategory, setOpenCategory] = useState(false);
 
   return (
     <div className="px-6 my-2 w-full">
@@ -51,7 +53,10 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="flex items-end justify-around mt-4 md:mt-0 md:ml-3 lg:ml-0">
-              <button className="inline-flex ml-1.5 items-start justify-start px-6 py-3 bg-cyan-500 hover:bg-cyan-600 focus:outline-none rounded">
+              <button
+                onClick={() => setOpenCategory(true)}
+                className="inline-flex ml-1.5 items-start justify-start px-6 py-3 bg-cyan-500 hover:bg-cyan-600 focus:outline-none rounded"
+              >
                 <p className="text-sm font-medium leading-none text-white">
                   Add Category
                 </p>
@@ -66,13 +71,21 @@ const Dashboard = () => {
                   New Reminder
                 </p>
               </button>
-              <AddReminderModal
-                open={reminderModal.show}
-                refetch={refetch}
-                onClose={() =>
-                  dispatch(handleReminder({ show: false, edit: false }))
-                }
-              />
+              {reminderModal.show && (
+                <AddReminderModal
+                  open={reminderModal.show}
+                  refetch={refetch}
+                  onClose={() =>
+                    dispatch(handleReminder({ show: false, edit: false }))
+                  }
+                />
+              )}
+              {openCategory && (
+                <CategoryModal
+                  open={openCategory}
+                  onClose={() => setOpenCategory(false)}
+                />
+              )}
             </div>
           </div>
         </div>

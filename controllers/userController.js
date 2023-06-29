@@ -102,3 +102,35 @@ export const loginUser = async (req, res) => {
     return res.status(500).json({ msg: "Server error, try again later." });
   }
 };
+
+export const addCategory = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (id !== req.user._id.toString())
+      return res.status(401).json({ msg: "You dont have permission" });
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    const category = capitalLetter(req.body.category);
+    user.categories.push(category);
+    await user.save();
+
+    return res.json({ msg: "Category added successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};
+
+export const allCategories = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("categories");
+    const allCategories = user.categories;
+
+    return res.json(allCategories);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};

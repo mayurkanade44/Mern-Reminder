@@ -9,7 +9,25 @@ export const userSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    addCategory: builder.mutation({
+      query: ({ data, id }) => ({
+        url: `/api/user/profile/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+    }),
+    allCategories: builder.query({
+      query: () => ({
+        url: "/api/user/categories",
+      }),
+      keepUnusedDataFor: 5,
+      providesTags: ["User"],
+    }),
   }),
 });
 
-export const { useLoginMutation } = userSlice;
+export const {
+  useLoginMutation,
+  useAddCategoryMutation,
+  useAllCategoriesQuery,
+} = userSlice;
