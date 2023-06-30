@@ -4,6 +4,8 @@ import { capitalLetter, uploadFiles } from "../utils/helper.js";
 import exceljs from "exceljs";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import axios from "axios";
+import sgMail from "@sendgrid/mail";
 
 export const addReminder = async (req, res) => {
   const { title, category, expirationDate, reminderDue } = req.body;
@@ -145,7 +147,7 @@ export const deleteReminder = async (req, res) => {
   }
 };
 
-export const reminderAlert = async (req, res) => {
+export const reminderFile = async (req, res) => {
   try {
     const date = new Date().toISOString().split("T")[0];
 
@@ -154,7 +156,7 @@ export const reminderAlert = async (req, res) => {
         path: "reminders",
         match: { expiryMonths: { $in: [date] } },
       })
-      .select("name emailList reminders");
+      .select("name reminders");
 
     for (let user of allUsers) {
       if (user.reminders.length) {
@@ -208,6 +210,49 @@ export const reminderAlert = async (req, res) => {
     }
 
     return res.json({ msg: "ok" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};
+
+export const reminderAlert = async (req, res) => {
+  try {
+    const allUser = await User.find().select("name emailList reminderFile");
+
+    for (let user of allUser) {
+      if (user.reminderFile) {
+        const fileType = user.reminderFile.split(".").pop();
+        const result = await axios.get(user.reminderFile, {
+          responseType: "arraybuffer",
+        });
+        const base64File = Buffer.from(result.data, "binary").toString(
+          "base64"
+        );
+
+        const attachObj = {
+          content: base64File,
+          filename: `${user.name}.${fileType}`,
+          type: `application/${fileType}`,
+          disposition: "attachment",
+        };
+        const attach = [attachObj];
+
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+        const msg = {
+          to: user.emailList,
+          from: { email: "noreply.pestbytes@gmail.com", name: "Reminder" },
+          template_id: "d-458b69d16c73496f92254407bc4c50c7",
+          attachments: attach,
+        };
+        await sgMail.send(msg);
+      }
+      user.reminderFile = "";
+      await user.save();
+    }
+
+    return res.json({ msg: "Email Sent" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later." });
