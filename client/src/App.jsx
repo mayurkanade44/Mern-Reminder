@@ -11,6 +11,7 @@ import { Footer, Navbar } from "./components";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Reminder from "./pages/Reminder";
+import Profile from "./pages/Profile";
 
 function App() {
   const Layout = () => {
@@ -31,6 +32,7 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route index={true} path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/reminder/:id" element={<Reminder />} />
       </Route>
     )

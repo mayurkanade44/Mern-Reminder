@@ -14,7 +14,7 @@ export const registerUser = async (req, res) => {
     const verificationToken = crypto.randomBytes(40).toString("hex");
 
     const newName = capitalLetter(name);
-    const link = `http://localhost:3000/verify-account?token=${verificationToken}&email=${email}`;
+    const link = `http://localhost:3000/profile?token=${verificationToken}&email=${email}`;
 
     const dynamicData = { name: name, email: email, link: link };
     const mail = await sendEmail({
@@ -43,20 +43,21 @@ export const registerUser = async (req, res) => {
 export const verifyUser = async (req, res) => {
   const { verificationToken, email, password, emailList } = req.body;
   try {
-    if (!password)
-      return res.status(400).json({ msg: "Please provide all values" });
-
     const user = await User.findOne({ email });
 
     if (!user) return res.status(401).json({ msg: "Verification Failed" });
 
-    if (verificationToken !== user.verificationToken)
-      return res.status(401).json({ msg: "Verification Failed" });
+    if (!user.password) {
+      if (password) {
+        if (verificationToken !== user.verificationToken)
+          return res.status(401).json({ msg: "Verification Failed" });
+        user.isVerified = true;
+        user.verificationToken = null;
+        user.password = password;
+      } else return res.status(400).json({ msg: "Please provide all values" });
+    }
 
-    user.isVerified = true;
-    user.verificationToken = null;
-    user.password = password;
-    emailList.map((email) => user.emailList.push(email));
+    emailList.split(",").map((email) => user.emailList.push(email));
 
     await user.save();
 
@@ -123,10 +124,11 @@ export const addCategory = async (req, res) => {
 
 export const allCategories = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("categories");
-    const allCategories = user.categories;
+    const user = await User.findById(req.user._id).select(
+      "categories name emailList"
+    );
 
-    return res.json(allCategories);
+    return res.json(user);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later." });

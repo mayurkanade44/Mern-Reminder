@@ -124,7 +124,7 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
               className="border w-full border-gray-300 dark:border-gray-700 pl-2 py-1 shadow-sm rounded text-sm focus:outline-none focus:border-indigo-700 "
               placeholder="Enter reminder title"
             >
-              {categories?.map((data) => {
+              {categories?.categories?.map((data) => {
                 return (
                   <option value={data} key={data}>
                     {data}
