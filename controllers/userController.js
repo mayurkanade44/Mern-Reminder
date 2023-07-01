@@ -3,36 +3,22 @@ import crypto from "crypto";
 import { capitalLetter, generateToken, sendEmail } from "../utils/helper.js";
 
 export const registerUser = async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, password } = req.body;
   try {
-    if (!email || !name)
+    if (!email || !name || !password)
       return res.status(400).json({ msg: "Please provide all values" });
 
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: "User already exists" });
 
-    const verificationToken = crypto.randomBytes(40).toString("hex");
-
-    const newName = capitalLetter(name);
-    const link = `http://localhost:3000/profile?token=${verificationToken}&email=${email}`;
-
-    const dynamicData = { name: name, email: email, link: link };
-    const mail = await sendEmail({
-      dynamicData,
-      template: "d-458b69d16c73496f92254407bc4c50c7",
-    });
-    if (!mail)
-      return res.status(500).json({ msg: "Server error, try again later." });
-
     await User.create({
-      name: newName,
+      name: capitalLetter(name),
       email,
-      verificationToken,
       emailList: [email],
     });
 
     return res.status(201).json({
-      msg: `Verification email has been sent to your registered email id`,
+      msg: `Successfully registered, contact admin`,
     });
   } catch (error) {
     console.log(error);
@@ -43,8 +29,10 @@ export const registerUser = async (req, res) => {
 export const verifyUser = async (req, res) => {
   const { verificationToken, email, password, emailList } = req.body;
   try {
-    const user = await User.findOne({ email });
+    if (!verificationToken && !email && !password && !emailList)
+      return res.status(400).json({ msg: "Please provide all values" });
 
+    const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ msg: "Verification Failed" });
 
     if (!user.password) {
@@ -80,7 +68,7 @@ export const loginUser = async (req, res) => {
     if (!user) return res.status(400).json({ msg: "Invalid credentials" });
 
     if (!user.isVerified)
-      return res.status(401).json({ msg: "Email verification still pending" });
+      return res.status(401).json({ msg: "Verification still pending" });
 
     const passwordCheck = await user.comparePassword(password);
 

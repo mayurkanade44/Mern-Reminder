@@ -10,7 +10,6 @@ const UserSchema = new mongoose.Schema(
     categories: { type: Array, default: ["Driving License", "Rent Agreement"] },
     passwordToken: { type: String },
     resetPasswordExpiry: { type: Date },
-    verificationToken: { type: String },
     isVerified: { type: Boolean, default: false },
     reminderFile: { type: String },
   },

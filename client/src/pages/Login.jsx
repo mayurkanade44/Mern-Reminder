@@ -1,6 +1,6 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useLoginMutation } from "../redux/userSlice";
+import { useLoginMutation, useRegisterMutation } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import { setCredentials } from "../redux/authSlice";
 import { toast } from "react-toastify";
@@ -8,20 +8,30 @@ import { toast } from "react-toastify";
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [login, { isLoading }] = useLoginMutation();
+  const [login, { isLoading: loginLoading }] = useLoginMutation();
+  const [register, { isLoading: registerLoading }] = useRegisterMutation();
+  const [showRegister, setShowRegister] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = {
-      email: e.target[0].value,
-      password: e.target[1].value,
-    };
-
     try {
-      const res = await login(data).unwrap();
-      dispatch(setCredentials(res));
-      navigate("/dashboard");
+      let res;
+      if (showRegister) {
+        res = await register({
+          name: e.target[0].value,
+          email: e.target[1].value,
+          password: e.target[2].value,
+        }).unwrap();
+        setShowRegister(false);
+      } else {
+        res = await login({
+          email: e.target[0].value,
+          password: e.target[1].value,
+        }).unwrap();
+        dispatch(setCredentials(res));
+        navigate("/dashboard");
+      }
       toast.success(res.msg);
     } catch (error) {
       console.log(error);
@@ -35,13 +45,31 @@ const Login = () => {
           onSubmit={handleSubmit}
           className="w-full md:w-1/2 flex items-center justify-center bg-gray-100 dark:bg-gray-900"
         >
-          <div className="w-full sm:w-4/6 md:w-4/6 xl:w-2/3 text-gray-800 dark:text-gray-100 mb-12 sm:mb-0 px-2 sm:px-0">
+          <div className="w-full sm:w-4/6 md:w-4/6 xl:w-2/3 text-gray-800 dark:text-gray-100 mb-10 sm:mb-0 px-2 sm:px-0">
             <div className="pt-1 px-2 flex flex-col items-center justify-center">
               <h3 className="text-2xl md:text-2xl sm:text-4xl font-bold">
-                Login To Your Account
+                {showRegister
+                  ? "Register Your Account"
+                  : "Login To Your Account"}
               </h3>
             </div>
-            <div className="mt-10 w-full px-2 sm:px-6">
+            <div className="mt-8 w-full px-2 sm:px-6">
+              {showRegister && (
+                <div className="flex flex-col mt-5">
+                  <label
+                    htmlFor="name"
+                    className="text-lg font-semibold leading-tight"
+                  >
+                    Name
+                  </label>
+                  <input
+                    required
+                    name="name"
+                    className="h-10 px-2 w-full rounded mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 dark:focus:border-indigo-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 border-gray-300 border shadow"
+                    type="text"
+                  />
+                </div>
+              )}
               <div className="flex flex-col mt-5">
                 <label
                   htmlFor="email"
@@ -71,18 +99,29 @@ const Login = () => {
                 />
               </div>
             </div>
-            <div className="pt-6 w-full flex justify-end px-2 sm:px-6">
-              <p className="text-sm hover:text-white text-indigo-600">
-                Forgot Password?
-              </p>
+            <div className="pt-6 w-full flex justify-between px-2 sm:px-6">
+              <button
+                type="button"
+                onClick={() => setShowRegister(!showRegister)}
+                className="text-sm hover:text-indigo-400 text-white"
+              >
+                {showRegister
+                  ? "Already have an account? Sign In"
+                  : "Don't have an account? Sign Up"}
+              </button>
+              {!showRegister && (
+                <p className="text-sm hover:text-indigo-400 text-white">
+                  Forgot Password?
+                </p>
+              )}
             </div>
-            <div className="px-2 sm:mb-16 sm:px-6">
+            <div className="flex justify-center px-2 sm:mb-16 sm:px-6">
               <button
                 type="submit"
-                disabled={isLoading}
-                className="focus:outline-none w-full sm:w-auto bg-indigo-700 text-white px-8 py-3 text-sm mt-6 disabled:bg-indigo-400 disabled:cursor-not-allowed"
+                disabled={loginLoading || registerLoading}
+                className="focus:outline-none w-full sm:w-auto bg-indigo-700 text-white px-8 py-3 text-sm mt-6 hover:bg-indigo-600 disabled:bg-indigo-400 disabled:cursor-not-allowed"
               >
-                Login to Your Account
+                {showRegister ? "Sign Up" : "Sign In"}
               </button>
             </div>
           </div>

@@ -40,7 +40,7 @@ export const sendEmail = async ({ dynamicData, template }) => {
 
     const msg = {
       to: dynamicData.email,
-      from: { email: "noreply.pestbytes@gmail.com", name: "PestBytes" },
+      from: { email: "noreply.pestbytes@gmail.com", name: "Reminder" },
       dynamic_template_data: dynamicData,
       template_id: template,
     };
