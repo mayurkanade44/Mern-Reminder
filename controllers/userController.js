@@ -106,6 +106,7 @@ export const loginUser = async (req, res) => {
       user: {
         userId: user._id,
         name: user.name,
+        admin: user.isAdmin,
       },
       msg: `Welcome ${user.name}`,
     });

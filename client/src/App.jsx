@@ -8,7 +8,14 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Footer, Navbar } from "./components";
-import { Login, Dashboard, Profile, Reminder, Admin } from "./pages";
+import {
+  Login,
+  Dashboard,
+  Profile,
+  Reminder,
+  Admin,
+  ProtectedRoute,
+} from "./pages";
 
 function App() {
   const Layout = () => {
@@ -28,10 +35,38 @@ function App() {
     createRoutesFromElements(
       <Route path="/" element={<Layout />}>
         <Route index={true} path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/reminder/:id" element={<Reminder />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute admin={true}>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reminder/:id"
+          element={
+            <ProtectedRoute>
+              <Reminder />
+            </ProtectedRoute>
+          }
+        />
       </Route>
     )
   );

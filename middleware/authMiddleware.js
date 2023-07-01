@@ -19,3 +19,14 @@ export const authenticateUser = async (req, res, next) => {
     res.status(401).json({ msg: "Authentication Invalid" });
   }
 };
+
+export const isAdmin = () => {
+  return (req, res, next) => {
+    if (!req.user.isAdmin) {
+      return res
+        .status(403)
+        .json({ msg: "You don't have permission, please contact admin" });
+    }
+    next();
+  };
+};
