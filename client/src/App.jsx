@@ -15,6 +15,7 @@ import {
   Reminder,
   Admin,
   ProtectedRoute,
+  PageNotFound,
 } from "./pages";
 
 function App() {
@@ -67,6 +68,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<PageNotFound />} />
       </Route>
     )
   );
