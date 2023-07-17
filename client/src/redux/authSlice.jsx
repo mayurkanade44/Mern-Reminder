@@ -1,9 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  user: localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user"))
-    : null,
+  user: JSON.parse(localStorage.getItem("user")) || null,
   reminderModal: {
     show: false,
     edit: false,
@@ -21,8 +19,12 @@ const authSlice = createSlice({
     handleReminder: (state, { payload }) => {
       state.reminderModal = payload;
     },
+    logoutUser: (state) => {
+      state.user = null;
+      localStorage.removeItem("user");
+    },
   },
 });
 
-export const { setCredentials, handleReminder } = authSlice.actions;
+export const { setCredentials, handleReminder, logoutUser } = authSlice.actions;
 export default authSlice.reducer;

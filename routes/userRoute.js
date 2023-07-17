@@ -7,6 +7,7 @@ import {
   allUsers,
   approveUser,
   loginUser,
+  logout,
   registerUser,
 } from "../controllers/userController.js";
 import { authenticateUser, isAdmin } from "../middleware/authMiddleware.js";
@@ -16,6 +17,7 @@ router
   .post(registerUser)
   .patch(authenticateUser, isAdmin, approveUser);
 router.route("/login").post(loginUser);
+router.route("/logout").post(logout);
 router.route("/allUsers").get(authenticateUser, isAdmin, allUsers);
 router.route("/categories").get(authenticateUser, allCategories);
 router.route("/profile/:id").patch(authenticateUser, addCategory);
