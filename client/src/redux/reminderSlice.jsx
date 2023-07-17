@@ -35,6 +35,13 @@ export const reminderSlice = apiSlice.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    reminderStats: builder.query({
+      query: () => ({
+        url: "/api/reminder/reminderStats",
+      }),
+      keepUnusedDataFor: 5,
+      providesTags: ["Reminders"],
+    }),
   }),
 });
 
@@ -44,4 +51,5 @@ export const {
   useSingleReminderQuery,
   useUpdateReminderMutation,
   useDeleteReminderMutation,
+  useReminderStatsQuery,
 } = reminderSlice;

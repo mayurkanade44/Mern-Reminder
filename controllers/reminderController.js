@@ -67,6 +67,28 @@ export const allReminders = async (req, res) => {
   }
 };
 
+export const reminderStats = async (req, res) => {
+  try {
+    const stats = { total: 0, expired: 0, month: 0 };
+    stats.total = await Reminder.countDocuments({ user: req.user._id });
+    const date = new Date();
+    stats.expired = await Reminder.countDocuments({
+      user: req.user._id,
+      expirationDate: { $lte: date },
+    });
+    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    stats.month = await Reminder.countDocuments({
+      user: req.user._id,
+      expirationDate: { $lte: lastDay, $gte: firstDay },
+    });
+    return res.json(stats);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};
+
 export const singleReminder = async (req, res) => {
   const { id } = req.params;
   try {

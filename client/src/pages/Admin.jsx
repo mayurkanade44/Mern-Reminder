@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAllUsersQuery, useUpdateUserMutation } from "../redux/userSlice";
 import { toast } from "react-toastify";
+import Loading from "../components/Loading";
 
 const Admin = () => {
   const { data, isLoading, refetch } = useAllUsersQuery();
@@ -19,6 +20,7 @@ const Admin = () => {
 
   return (
     <div className="px-6 my-2 w-full">
+      {(isLoading || approveLoading) && <Loading />}
       <div className="bg-white px-4 md:px-8 xl:px-10 overflow-x-auto">
         <table className="w-full whitespace-nowrap">
           <thead>

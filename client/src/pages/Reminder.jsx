@@ -5,7 +5,7 @@ import FileSaver from "file-saver";
 import { handleReminder } from "../redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { DeleteModal, AddReminderModal } from "../components";
+import { DeleteModal, AddReminderModal, Loading } from "../components";
 
 const Reminder = () => {
   const { id } = useParams();
@@ -27,6 +27,7 @@ const Reminder = () => {
 
   return (
     <div className="mx-4 lg:mx-60">
+      {isLoading && <Loading />}
       <AddReminderModal
         open={reminderModal.show}
         onClose={() => dispatch(handleReminder({ show: false, edit: false }))}

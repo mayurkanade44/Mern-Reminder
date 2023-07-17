@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
-import { AddReminderModal, CategoryModal } from "../components";
-import { useAllRemindersQuery } from "../redux/reminderSlice";
+import { AddReminderModal, CategoryModal, Loading } from "../components";
+import {
+  useAllRemindersQuery,
+  useReminderStatsQuery,
+} from "../redux/reminderSlice";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { handleReminder } from "../redux/authSlice";
@@ -12,24 +15,28 @@ const Dashboard = () => {
   const { data, isLoading, refetch } = useAllRemindersQuery({ skip: true });
   const { data: categories, refetch: categoryRefetch } =
     useAllCategoriesQuery();
+  const { data: stats } = useReminderStatsQuery();
   const dispatch = useDispatch();
 
   const [openCategory, setOpenCategory] = useState(false);
 
   return (
     <div className="px-6 my-2 w-full">
+      {isLoading && <Loading />}
       <div className="flex justify-around">
         <div className="h-20 w-60 bg-green-500 flex flex-col items-center justify-center rounded-lg">
           <h4 className="text-2xl font-bold text-white">Total</h4>
-          <h4 className="text-2xl font-semibold text-black">1000</h4>
+          <h4 className="text-2xl font-semibold text-black">{stats?.total}</h4>
         </div>
         <div className="h-20 w-60 bg-red-500 flex flex-col items-center justify-center rounded-lg">
           <h4 className="text-2xl font-bold text-white">Expired</h4>
-          <h4 className="text-2xl font-semibold text-black">10</h4>
+          <h4 className="text-2xl font-semibold text-black">
+            {stats?.expired}
+          </h4>
         </div>
         <div className="h-20 w-60 bg-cyan-400 flex flex-col items-center justify-center rounded-lg">
-          <h4 className="text-2xl font-bold text-white">Month</h4>
-          <h4 className="text-2xl font-semibold text-black">20</h4>
+          <h4 className="text-2xl font-bold text-white">Expiring</h4>
+          <h4 className="text-2xl font-semibold text-black">{stats?.month}</h4>
         </div>
       </div>
       <div className="md:px-10 py-4 md:py-7">
