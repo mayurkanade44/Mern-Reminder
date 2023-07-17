@@ -10,7 +10,8 @@ import { useAllCategoriesQuery } from "../redux/userSlice";
 const Dashboard = () => {
   const { reminderModal } = useSelector((store) => store.auth);
   const { data, isLoading, refetch } = useAllRemindersQuery({ skip: true });
-  const { data: categories } = useAllCategoriesQuery();
+  const { data: categories, refetch: categoryRefetch } =
+    useAllCategoriesQuery();
   const dispatch = useDispatch();
 
   const [openCategory, setOpenCategory] = useState(false);
@@ -89,6 +90,7 @@ const Dashboard = () => {
               {openCategory && (
                 <CategoryModal
                   open={openCategory}
+                  refetch={categoryRefetch}
                   onClose={() => setOpenCategory(false)}
                 />
               )}

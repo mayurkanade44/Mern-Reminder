@@ -6,9 +6,9 @@ const Admin = () => {
   const { data, isLoading, refetch } = useAllUsersQuery();
   const [approve, { isLoading: approveLoading }] = useUpdateUserMutation();
 
-  const handleApprove = async (id) => {
+  const handleApprove = async ({ id, activate }) => {
     try {
-      const res = await approve({ userId: id }).unwrap();
+      const res = await approve({ userId: id, activate }).unwrap();
       toast.success(res.msg);
       refetch();
     } catch (error) {
@@ -52,14 +52,29 @@ const Admin = () => {
                 </td>
                 <td>
                   {user.isVerified ? (
-                    <p className="bg-green-600 w-20 rounded px-2 py-1.5 text-white">
-                      Approved
-                    </p>
+                    <div className="flex gap-1">
+                      <p className="bg-green-600 w-20 rounded px-2 py-1.5 text-white">
+                        Approved
+                      </p>
+                      {!user.isAdmin && (
+                        <button
+                          onClick={() =>
+                            handleApprove({ id: user._id, activate: false })
+                          }
+                          disabled={approveLoading}
+                          className="w-full sm:w-auto rounded bg-red-600 text-white px-3 py-1 text-sm hover:bg-indigo-600 disabled:cursor-not-allowed"
+                        >
+                          Deactivate
+                        </button>
+                      )}
+                    </div>
                   ) : (
                     <button
-                      onClick={() => handleApprove(user._id)}
+                      onClick={() =>
+                        handleApprove({ id: user._id, activate: true })
+                      }
                       disabled={approveLoading}
-                      className="w-full sm:w-auto rounded bg-red-600 text-white px-3 py-1 text-sm hover:bg-indigo-600 disabled:cursor-not-allowed"
+                      className="w-full sm:w-auto rounded bg-red-600 text-white px-3 py-1 text-sm hover:bg-green-600 disabled:cursor-not-allowed"
                     >
                       Pending
                     </button>

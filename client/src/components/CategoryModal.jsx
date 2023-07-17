@@ -3,9 +3,10 @@ import { useAddCategoryMutation } from "../redux/userSlice";
 import Modal from "./Modal";
 import { useSelector } from "react-redux";
 
-const CategoryModal = ({ open, onClose }) => {
+const CategoryModal = ({ open, onClose, refetch }) => {
   const [addCategory, { isLoading }] = useAddCategoryMutation();
   const { user } = useSelector((store) => store.auth);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -13,6 +14,7 @@ const CategoryModal = ({ open, onClose }) => {
     try {
       const res = await addCategory({ data, id: user.userId }).unwrap();
       toast.success(res.msg);
+      refetch();
       onClose();
     } catch (error) {
       console.log(error);

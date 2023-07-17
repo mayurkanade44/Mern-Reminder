@@ -1,5 +1,4 @@
 import User from "../models/userModel.js";
-import crypto from "crypto";
 import { capitalLetter, generateToken, sendEmail } from "../utils/helper.js";
 
 export const registerUser = async (req, res) => {
@@ -32,20 +31,25 @@ export const approveUser = async (req, res) => {
     const user = await User.findById(req.body.userId);
     if (!user) return res.status(404).json({ msg: "User not found" });
 
-    const dynamicData = { name: user.name, email: user.email };
-    const mail = await sendEmail({
-      dynamicData,
-      template: "d-458b69d16c73496f92254407bc4c50c7",
-    });
-    if (!mail)
-      return res
-        .status(500)
-        .json({ msg: "Mail server error, try again later." });
+    if (req.body.activate) {
+      const dynamicData = { name: user.name, email: user.email };
+      const mail = await sendEmail({
+        dynamicData,
+        template: "d-458b69d16c73496f92254407bc4c50c7",
+      });
+      if (!mail)
+        return res
+          .status(500)
+          .json({ msg: "Mail server error, try again later." });
 
-    user.isVerified = true;
-    await user.save();
-
-    return res.json({ msg: "Registration approved" });
+      user.isVerified = true;
+      await user.save();
+      return res.json({ msg: "User activated" });
+    } else {
+      user.isVerified = false;
+      await user.save();
+      return res.json({ msg: "User deactivated" });
+    }
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later." });
@@ -129,7 +133,7 @@ export const addCategory = async (req, res) => {
   const { id } = req.params;
   try {
     if (id !== req.user._id.toString())
-      return res.status(401).json({ msg: "You dont have permission" });
+      return res.status(401).json({ msg: "You don't have permission" });
 
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ msg: "User not found" });
@@ -161,7 +165,7 @@ export const allCategories = async (req, res) => {
 export const allUsers = async (req, res) => {
   try {
     const users = await User.find()
-      .select("name email isVerified createdAt")
+      .select("name email isVerified createdAt isAdmin")
       .sort("isVerified");
 
     return res.json(users);
