@@ -25,7 +25,7 @@ const Navbar = () => {
     <>
       {user && (
         <section className="top-0 left-0 right-0 bg-white shadow-sm border-b-[1px]">
-          <header className="mx-auto px-10 flex justify-between py-1 md:py-3 items-center">
+          <header className="mx-auto px-10 flex justify-between py-2 md:py-3 items-center">
             <div>
               <Link to="/">
                 <h1>Reminder</h1>
@@ -35,7 +35,7 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="border-2 border-red-500 px-4 py-1 rounded-full text-red-500 font-semibold"
+                className="border-2 border-red-500 px-2 md:px-4 md:py-1 rounded-full text-red-500 font-semibold"
               >
                 Logout
               </button>

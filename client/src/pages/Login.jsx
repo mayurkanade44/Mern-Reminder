@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useLoginMutation, useRegisterMutation } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import { setCredentials } from "../redux/authSlice";
@@ -8,9 +8,17 @@ import { toast } from "react-toastify";
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useSelector((store) => store.auth);
   const [login, { isLoading: loginLoading }] = useLoginMutation();
   const [register, { isLoading: registerLoading }] = useRegisterMutation();
   const [showRegister, setShowRegister] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      if (user.admin) navigate("/admin");
+      else navigate("/dashboard");
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +38,8 @@ const Login = () => {
           password: e.target[1].value,
         }).unwrap();
         dispatch(setCredentials(res));
-        navigate("/dashboard");
+        if (res.user.admin) navigate("/admin");
+        else navigate("/dashboard");
       }
       toast.success(res.msg);
     } catch (error) {

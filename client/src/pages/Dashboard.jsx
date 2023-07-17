@@ -5,10 +5,12 @@ import { useAllRemindersQuery } from "../redux/reminderSlice";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { handleReminder } from "../redux/authSlice";
+import { useAllCategoriesQuery } from "../redux/userSlice";
 
 const Dashboard = () => {
   const { reminderModal } = useSelector((store) => store.auth);
   const { data, isLoading, refetch } = useAllRemindersQuery({ skip: true });
+  const { data: categories } = useAllCategoriesQuery();
   const dispatch = useDispatch();
 
   const [openCategory, setOpenCategory] = useState(false);
@@ -46,9 +48,13 @@ const Dashboard = () => {
               </div>
               <div className="w-40 py-1 md:py-2 px-3 bg-white lg:ml-3 border rounded border-gray-200">
                 <select className="w-full text-sm leading-3 text-gray-500 focus:outline-none">
-                  <option>Employees</option>
-                  <option>Clients</option>
-                  <option>Employees</option>
+                  {categories?.categories?.map((data) => {
+                    return (
+                      <option value={data} key={data}>
+                        {data}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>

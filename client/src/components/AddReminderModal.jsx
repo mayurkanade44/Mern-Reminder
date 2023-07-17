@@ -10,7 +10,7 @@ import { useAllCategoriesQuery } from "../redux/userSlice";
 
 const initialState = {
   title: "",
-  category: "",
+  category: "Driving License",
   expirationDate: "",
   reminderDue: "1",
   notes: "",
@@ -246,7 +246,7 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
         body={body}
         isOpen={open}
         onClose={onClose}
-        width="relative w-full mx-3 mt-40 md:mt-2 md:w-5/6 lg:w-3/6 h-full lg:h-auto md:h-auto"
+        width="relative w-full mx-3 mt-20 md:mt-2 md:w-5/6 lg:w-3/6 h-full lg:h-auto md:h-auto"
         itemCenter="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-neutral-800/70"
       />
     </div>
