@@ -26,6 +26,7 @@ const Dashboard = () => {
     search,
     category: searchCategory,
   });
+  
   const debounce = () => {
     let timeoutId;
     return (e) => {

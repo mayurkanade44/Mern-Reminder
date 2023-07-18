@@ -5,9 +5,10 @@ import {
 } from "../redux/userSlice";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { Loading } from "../components";
 
 const Profile = () => {
-  const { data: profile } = useAllCategoriesQuery();
+  const { data: profile, isLoading: profileLoading } = useAllCategoriesQuery();
   const [searchParams] = useSearchParams();
   const [update, { isLoading }] = useUpdateUserMutation();
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ const Profile = () => {
 
   return (
     <div className="h-screen flex justify-center items-center">
+      {(isLoading || profileLoading) && <Loading />}
       <div className="flex flex-col w-[370px] border-2 border-black p-3">
         <h1 className="text-2xl font-semibold text-center">
           {profile?.name} Profile
