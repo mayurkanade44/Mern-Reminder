@@ -10,8 +10,9 @@ export const reminderSlice = apiSlice.injectEndpoints({
       }),
     }),
     allReminders: builder.query({
-      query: () => ({
+      query: ({ search, category, page }) => ({
         url: "/api/reminder/allReminders",
+        params: { search, category, page },
       }),
       keepUnusedDataFor: 5,
       providesTags: ["Reminders"],

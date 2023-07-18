@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import { AddReminderModal, CategoryModal, Loading } from "../components";
 import {
@@ -12,13 +12,32 @@ import { useAllCategoriesQuery } from "../redux/userSlice";
 
 const Dashboard = () => {
   const { reminderModal } = useSelector((store) => store.auth);
-  const { data, isLoading, refetch } = useAllRemindersQuery({ skip: true });
   const { data: categories, refetch: categoryRefetch } =
     useAllCategoriesQuery();
   const { data: stats } = useReminderStatsQuery();
   const dispatch = useDispatch();
 
+  const [tempSearch, setTempSearch] = useState("");
+  const [search, setSearch] = useState("");
   const [openCategory, setOpenCategory] = useState(false);
+  const [searchCategory, setSearchCategory] = useState("All Categories");
+
+  const { data, isLoading, refetch } = useAllRemindersQuery({
+    search,
+    category: searchCategory,
+  });
+  const debounce = () => {
+    let timeoutId;
+    return (e) => {
+      setTempSearch(e.target.value);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setSearch(e.target.value);
+      }, 1000);
+    };
+  };
+
+  const optimizedDebounce = useMemo(() => debounce(), []);
 
   return (
     <div className="px-6 my-2 w-full">
@@ -52,10 +71,16 @@ const Dashboard = () => {
                   type="text"
                   className="py-1 md:py-2.5 pl-1 w-full focus:outline-none text-sm rounded text-gray-600 placeholder-gray-500"
                   placeholder="Search"
+                  value={tempSearch}
+                  onChange={optimizedDebounce}
                 />
               </div>
               <div className="w-40 py-1 md:py-2 px-3 bg-white lg:ml-3 border rounded border-gray-200">
-                <select className="w-full text-sm leading-3 text-gray-500 focus:outline-none">
+                <select
+                  className="w-full text-sm leading-3 text-gray-500 focus:outline-none"
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                >
+                  <option value="All Categories">All Categories</option>
                   {categories?.categories?.map((data) => {
                     return (
                       <option value={data} key={data}>
@@ -106,6 +131,7 @@ const Dashboard = () => {
         </div>
       </div>
       <div className="bg-white px-4 md:px-8 xl:px-10 overflow-x-auto">
+        {!data?.length && <h1 className="text-center text-red-500 font-semibold text-2xl">No Data Found</h1>}
         <table className="w-full whitespace-nowrap">
           <thead>
             <tr className="h-16 w-full text-md leading-none text-gray-600">

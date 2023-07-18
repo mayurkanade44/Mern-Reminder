@@ -57,8 +57,12 @@ export const addReminder = async (req, res) => {
 };
 
 export const allReminders = async (req, res) => {
+  const { search, category } = req.query;
+  const query = { user: req.user._id };
+  if (search) query.title = { $regex: search, $options: "i" };
+  if (category && category !== "All Categories") query.category = category;
   try {
-    const reminders = await Reminder.find({ user: req.user._id });
+    const reminders = await Reminder.find(query);
 
     return res.json(reminders);
   } catch (error) {
