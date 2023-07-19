@@ -19,7 +19,7 @@ export const addReminder = async (req, res) => {
 
     for (let i = 1; i <= Number(reminderDue); i++) {
       expiryMonths.push(
-        new Date(date.getFullYear(), date.getMonth() - i, 3)
+        new Date(date.getFullYear(), date.getMonth() - i, 2)
           .toISOString()
           .split("T")[0]
       );
@@ -118,7 +118,7 @@ export const editReminder = async (req, res) => {
 
     for (let i = 1; i <= Number(reminderDue); i++) {
       expiryMonths.push(
-        new Date(date.getFullYear(), date.getMonth() - i, 3)
+        new Date(date.getFullYear(), date.getMonth() - i, 2)
           .toISOString()
           .split("T")[0]
       );
@@ -214,10 +214,10 @@ export const reminderFile = async (req, res) => {
           });
         });
 
-        await workbook.xlsx.writeFile(`./tmp/${user.name}.xlsx`);
+        await workbook.xlsx.writeFile(`./tmp/${user.name}_upcomingMonth.xlsx`);
 
         const result = await cloudinary.uploader.upload(
-          `tmp/${user.name}.xlsx`,
+          `tmp/${user.name}_upcomingMonth.xlsx`,
           {
             resource_type: "raw",
             use_filename: true,
@@ -225,17 +225,83 @@ export const reminderFile = async (req, res) => {
           }
         );
 
-        await User.findByIdAndUpdate(
-          user._id,
-          { reminderFile: result.secure_url },
-          { new: true, runValidators: true }
-        );
+        const userReminder = await User.findById(user._id);
+        userReminder.reminderFiles.push(result.secure_url);
+        await userReminder.save();
 
-        fs.unlinkSync(`./tmp/${user.name}.xlsx`);
+        fs.unlinkSync(`./tmp/${user.name}_upcomingMonth.xlsx`);
       }
     }
 
-    return res.json({ msg: "ok" });
+    return res.json({ msg: "Reminder file generated" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};
+
+export const expiryFile = async (req, res) => {
+  const date = new Date();
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  try {
+    const allUsers = await User.find()
+      .populate({
+        path: "reminders",
+        match: { expirationDate: { $lte: lastDay, $gte: firstDay } },
+      })
+      .select("name reminders");
+
+    for (let user of allUsers) {
+      if (user.reminders.length) {
+        const thisMonth = user.reminders;
+
+        const workbook = new exceljs.Workbook();
+        let worksheet = workbook.addWorksheet("Sheet1");
+
+        worksheet.columns = [
+          { header: "Title", key: "title" },
+          { header: "Category", key: "category" },
+          { header: "Expiration Date", key: "expirationDate" },
+          { header: "Notes", key: "notes" },
+          { header: "Attached Documents", key: "documents" },
+          { header: "Auto Renew", key: "autoRenew" },
+        ];
+
+        thisMonth.map((item) => {
+          worksheet.addRow({
+            title: item.title,
+            category: item.category,
+            expirationDate: item.expirationDate,
+            notes: item.notes,
+            autoRenew: item.autoRenew,
+            documents: item.documents.length && {
+              text: "Document",
+              hyperlink: item.documents[0],
+            },
+          });
+        });
+
+        await workbook.xlsx.writeFile(`./tmp/${user.name}_thisMonth.xlsx`);
+
+        const result = await cloudinary.uploader.upload(
+          `tmp/${user.name}_thisMonth.xlsx`,
+          {
+            resource_type: "raw",
+            use_filename: true,
+            folder: "reminder",
+          }
+        );
+
+        const userReminder = await User.findById(user._id);
+        userReminder.reminderFiles.push(result.secure_url);
+        await userReminder.save();
+
+        fs.unlinkSync(`./tmp/${user.name}_thisMonth.xlsx`);
+      }
+    }
+
+    return res.json({ msg: "Expiry file generated" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later." });
@@ -247,22 +313,25 @@ export const reminderAlert = async (req, res) => {
     const allUser = await User.find().select("name emailList reminderFile");
 
     for (let user of allUser) {
-      if (user.reminderFile) {
-        const fileType = user.reminderFile.split(".").pop();
-        const result = await axios.get(user.reminderFile, {
-          responseType: "arraybuffer",
-        });
-        const base64File = Buffer.from(result.data, "binary").toString(
-          "base64"
-        );
+      let attach = [];
+      if (user.reminderFiles.length) {
+        for (let reminderFile of user.reminderFiles) {
+          const fileType = reminderFile.split(".").pop();
+          const result = await axios.get(reminderFile, {
+            responseType: "arraybuffer",
+          });
+          const base64File = Buffer.from(result.data, "binary").toString(
+            "base64"
+          );
 
-        const attachObj = {
-          content: base64File,
-          filename: `${user.name}.${fileType}`,
-          type: `application/${fileType}`,
-          disposition: "attachment",
-        };
-        const attach = [attachObj];
+          const attachObj = {
+            content: base64File,
+            filename: `${user.name}.${fileType}`,
+            type: `application/${fileType}`,
+            disposition: "attachment",
+          };
+          attach.push(attachObj);
+        }
 
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -274,7 +343,7 @@ export const reminderAlert = async (req, res) => {
         };
         await sgMail.send(msg);
       }
-      user.reminderFile = "";
+      user.reminderFiles = [];
       await user.save();
     }
 

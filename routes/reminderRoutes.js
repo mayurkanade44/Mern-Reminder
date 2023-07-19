@@ -4,6 +4,7 @@ import {
   allReminders,
   deleteReminder,
   editReminder,
+  expiryFile,
   reminderAlert,
   reminderFile,
   reminderStats,
@@ -20,7 +21,8 @@ router
   .get(authenticateUser, singleReminder)
   .patch(authenticateUser, editReminder)
   .delete(authenticateUser, deleteReminder);
-router.route("/alert").get(reminderFile);
+router.route("/reminderFile").get(reminderFile);
+router.route("/expiryFile").get(expiryFile);
 router.route("/sendAlert").get(reminderAlert);
 
 export default router;

@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema(
     passwordToken: { type: String },
     resetPasswordExpiry: { type: Date },
     isVerified: { type: Boolean, default: false },
-    reminderFile: { type: String },
+    reminderFiles: [String],
     isAdmin: { type: Boolean, default: false },
   },
   { timestamps: true, toObject: { virtuals: true } }
