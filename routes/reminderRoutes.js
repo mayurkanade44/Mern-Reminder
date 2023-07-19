@@ -2,6 +2,7 @@ import express from "express";
 import {
   addReminder,
   allReminders,
+  autoRenew,
   deleteReminder,
   editReminder,
   expiryFile,
@@ -24,5 +25,6 @@ router
 router.route("/reminderFile").get(reminderFile);
 router.route("/expiryFile").get(expiryFile);
 router.route("/sendAlert").get(reminderAlert);
+router.route("/autoRenew").patch(autoRenew);
 
 export default router;

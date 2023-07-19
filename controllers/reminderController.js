@@ -16,33 +16,26 @@ export const addReminder = async (req, res) => {
       return res.status(400).json({ msg: "Please provide all values" });
 
     let date = new Date(expirationDate);
+    let reminderStart = Number(reminderDue);
     const expiryMonths = [];
 
-    if (autoRenew) {
-      if (renew === "Yearly") {
-        for (let i = 1; i <= 3; i++) {
-          expiryMonths.push(
-            new Date(date.getFullYear(), date.getMonth() - i, 2)
-              .toISOString()
-              .split("T")[0]
-          );
-        }
-      }
-      if (renew === "Monthly") {
-        req.body.expirationDate = new Date(
-          date.getFullYear(),
-          new Date().getMonth() + 1,
-          date.getDate()
-        );
-      }
+    if (autoRenew && renew === "Yearly") reminderStart = 3;
+
+    if (autoRenew && renew === "Monthly") {
+      req.body.expirationDate = new Date(
+        date.getFullYear(),
+        new Date().getMonth() + 1,
+        date.getDate()
+      );
     } else {
-      for (let i = 1; i <= Number(reminderDue); i++) {
+      for (let i = 1; i <= reminderStart; i++) {
         expiryMonths.push(
           new Date(date.getFullYear(), date.getMonth() - i, 2)
             .toISOString()
             .split("T")[0]
         );
       }
+      req.body.expirationDate = expirationDate;
     }
 
     const docsLinks = [];
@@ -387,6 +380,56 @@ export const reminderAlert = async (req, res) => {
     }
 
     return res.json({ msg: "Email Sent" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};
+
+export const autoRenew = async (req, res) => {
+  const date = new Date();
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  try {
+    const reminders = await Reminder.find({
+      autoRenew: true,
+      expirationDate: { $gte: firstDay, $lte: lastDay },
+    });
+
+    for (let reminder of reminders) {
+      const currentDate = new Date(reminder.expirationDate);
+      if (reminder.renew === "Monthly") {
+        let expirationDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 1,
+          currentDate.getDate()
+        );
+        reminder.expirationDate = expirationDate;
+        await reminder.save();
+      } else if (reminder.renew === "Yearly") {
+        let expirationDate = new Date(
+          currentDate.getFullYear() + 1,
+          currentDate.getMonth(),
+          currentDate.getDate()
+        );
+        let expiryMonths = [];
+        for (let i = 1; i <= 3; i++) {
+          expiryMonths.push(
+            new Date(
+              expirationDate.getFullYear(),
+              expirationDate.getMonth() - i,
+              2
+            )
+              .toISOString()
+              .split("T")[0]
+          );
+        }
+        reminder.expirationDate = expirationDate;
+        reminder.expiryMonths = expiryMonths;
+        await reminder.save();
+      }
+    }
+    return res.json({ msg: "Auto renewed" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later." });
