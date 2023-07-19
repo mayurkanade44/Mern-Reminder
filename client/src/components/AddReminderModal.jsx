@@ -38,7 +38,8 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
           .slice(0, 10),
         reminderDue: data.expiryMonths.length,
         documents: [],
-        autoRenew: false,
+        autoRenew: data.autoRenew,
+        renew: data.renew,
       });
     }
   }, [reminderModal.edit]);
