@@ -96,15 +96,25 @@ const Reminder = () => {
             </div>
             <h1 className="text-lg font-semibold ml-2">Months Before Expiry</h1>
           </div>
+          <div className="flex flex-row">
+            <h1 className="text-lg font-semibold mr-2">Auto Renew</h1>
+            <div className="bg-green-400 h-7 mb-6 rounded-md flex items-center justify-center">
+              <span className="text-sm text-white font-semibold mx-2">
+                {data?.autoRenew ? data?.renew : "Off"}
+              </span>
+            </div>
+          </div>
           <h1 className="text-lg font-semibold mr-2 mb-6">
             Notes - {data?.notes}
           </h1>
           <div className="flex flex-row">
             <h1 className="text-lg font-semibold mr-2">Attached Documents -</h1>
+
             <button
               type="button"
               onClick={() => downloadMultipleFiles(data?.documents)}
-              className="flex hover:bg-green-600 bg-green-700 rounded text-white px-3 py-1 text-sm"
+              className="flex hover:bg-green-600 bg-green-700 rounded text-white px-3 py-1 text-sm disabled:opacity-0"
+              disabled={!data?.documents.length}
             >
               Download
             </button>

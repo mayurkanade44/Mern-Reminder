@@ -8,7 +8,8 @@ import axios from "axios";
 import sgMail from "@sendgrid/mail";
 
 export const addReminder = async (req, res) => {
-  const { title, category, expirationDate, reminderDue } = req.body;
+  const { title, category, expirationDate, reminderDue, autoRenew, renew } =
+    req.body;
 
   try {
     if (!title || !category || !expirationDate)
@@ -17,12 +18,31 @@ export const addReminder = async (req, res) => {
     let date = new Date(expirationDate);
     const expiryMonths = [];
 
-    for (let i = 1; i <= Number(reminderDue); i++) {
-      expiryMonths.push(
-        new Date(date.getFullYear(), date.getMonth() - i, 2)
-          .toISOString()
-          .split("T")[0]
-      );
+    if (autoRenew) {
+      if (renew === "Yearly") {
+        for (let i = 1; i <= 3; i++) {
+          expiryMonths.push(
+            new Date(date.getFullYear(), date.getMonth() - i, 2)
+              .toISOString()
+              .split("T")[0]
+          );
+        }
+      }
+      if (renew === "Monthly") {
+        req.body.expirationDate = new Date(
+          date.getFullYear(),
+          new Date().getMonth() + 1,
+          date.getDate()
+        );
+      }
+    } else {
+      for (let i = 1; i <= Number(reminderDue); i++) {
+        expiryMonths.push(
+          new Date(date.getFullYear(), date.getMonth() - i, 2)
+            .toISOString()
+            .split("T")[0]
+        );
+      }
     }
 
     const docsLinks = [];
@@ -108,20 +128,40 @@ export const singleReminder = async (req, res) => {
 
 export const editReminder = async (req, res) => {
   const { id } = req.params;
-  const { expirationDate, reminderDue, category, title, notes } = req.body;
+  const {
+    expirationDate,
+    reminderDue,
+    category,
+    title,
+    notes,
+    autoRenew,
+    renew,
+  } = req.body;
   try {
     const reminder = await Reminder.findOne({ _id: id, user: req.user._id });
     if (!reminder) return res.status(404).json({ msg: "Not found" });
 
     let date = new Date(expirationDate);
+    let reminderStart = Number(reminderDue);
     const expiryMonths = [];
 
-    for (let i = 1; i <= Number(reminderDue); i++) {
-      expiryMonths.push(
-        new Date(date.getFullYear(), date.getMonth() - i, 2)
-          .toISOString()
-          .split("T")[0]
+    if (autoRenew && renew === "Yearly") reminderStart = 3;
+
+    if (autoRenew && renew === "Monthly") {
+      reminder.expirationDate = new Date(
+        date.getFullYear(),
+        new Date().getMonth() + 1,
+        date.getDate()
       );
+    } else {
+      for (let i = 1; i <= reminderStart; i++) {
+        expiryMonths.push(
+          new Date(date.getFullYear(), date.getMonth() - i, 2)
+            .toISOString()
+            .split("T")[0]
+        );
+      }
+      reminder.expirationDate = expirationDate;
     }
 
     const docsLinks = [];
@@ -145,7 +185,6 @@ export const editReminder = async (req, res) => {
     reminder.title = capitalLetter(title);
     reminder.expiryMonths = expiryMonths;
     reminder.category = category;
-    reminder.expirationDate = expirationDate;
     reminder.notes = notes;
 
     await reminder.save();

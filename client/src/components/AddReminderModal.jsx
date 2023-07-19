@@ -16,6 +16,7 @@ const initialState = {
   notes: "",
   documents: [],
   autoRenew: false,
+  renew: "Monthly",
 };
 
 const AddReminderModal = ({ open, onClose, data, refetch }) => {
@@ -53,6 +54,7 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
     form.set("reminderDue", formValue.reminderDue);
     form.set("notes", formValue.notes);
     form.set("autoRenew", formValue.autoRenew);
+    if (formValue.autoRenew) form.set("renew", formValue.renew);
     formValue.documents.forEach((file) => {
       form.append("documents", file);
     });
@@ -84,9 +86,9 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
         ...prev,
         documents: Array.from(e.target.files),
       }));
-      return;
-    }
-    setFormValue((prev) => ({ ...prev, [name]: value }));
+    } else if (name === "autoRenew") {
+      setFormValue((prev) => ({ ...prev, autoRenew: !prev.autoRenew }));
+    } else setFormValue((prev) => ({ ...prev, [name]: value }));
   };
 
   const body = (
@@ -161,7 +163,6 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
             <select
               name="reminderDue"
               className="border w-10 border-gray-300 dark:border-gray-700 pl-1 rounded text-sm focus:outline-none focus:border-indigo-700 "
-              placeholder="Enter reminder title"
               value={formValue.reminderDue}
               onChange={handleChange}
             >
@@ -211,11 +212,13 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
             />
           </div>
           <div className="md:w-2/4 lg:w-2/5 flex">
-            <div className="flex items-center">
+            <div className="flex items-center mr-2">
               <div className="bg-white dark:bg-gray-800 border rounded-sm border-gray-400 dark:border-gray-700 w-5 h-5 flex flex-shrink-0 justify-center items-center relative">
                 <input
                   type="checkbox"
-                  className="checkbox  absolute cursor-pointer w-full h-full"
+                  className="checkbox absolute cursor-pointer w-full h-full"
+                  name="autoRenew"
+                  onChange={handleChange}
                 />
                 <div className="check-icon hidden bg-indigo-700 text-white rounded-sm"></div>
               </div>
@@ -223,6 +226,17 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
                 Auto Renew
               </p>
             </div>
+            {formValue.autoRenew && (
+              <select
+                name="renew"
+                className="border w-20 h-6 mt-1 border-gray-300 dark:border-gray-700  rounded text-sm focus:outline-none focus:border-indigo-700 "
+                value={formValue.renew}
+                onChange={handleChange}
+              >
+                <option value="Monthly">Monthly</option>
+                <option value="Yearly">Yearly</option>
+              </select>
+            )}
           </div>
         </div>
         <div className="flex justify-center">
