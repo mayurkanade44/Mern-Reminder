@@ -22,6 +22,13 @@ export const userSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    approveUser: builder.mutation({
+      query: (data) => ({
+        url: "/api/user/register",
+        method: "PATCH",
+        body: data,
+      }),
+    }),
     updateUser: builder.mutation({
       query: (data) => ({
         url: "/api/user/updateUser",
@@ -57,6 +64,7 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useUpdateUserMutation,
+  useApproveUserMutation,
   useAddCategoryMutation,
   useAllCategoriesQuery,
   useAllUsersQuery,

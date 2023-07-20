@@ -1,11 +1,10 @@
-import { Link } from "react-router-dom";
-import { useAllUsersQuery, useUpdateUserMutation } from "../redux/userSlice";
+import { useAllUsersQuery, useApproveUserMutation } from "../redux/userSlice";
 import { toast } from "react-toastify";
 import Loading from "../components/Loading";
 
 const Admin = () => {
   const { data, isLoading, refetch } = useAllUsersQuery();
-  const [approve, { isLoading: approveLoading }] = useUpdateUserMutation();
+  const [approve, { isLoading: approveLoading }] = useApproveUserMutation();
 
   const handleApprove = async ({ id, activate }) => {
     try {
