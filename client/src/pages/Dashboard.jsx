@@ -26,7 +26,7 @@ const Dashboard = () => {
     search,
     category: searchCategory,
   });
-  
+
   const debounce = () => {
     let timeoutId;
     return (e) => {
@@ -132,7 +132,11 @@ const Dashboard = () => {
         </div>
       </div>
       <div className="bg-white px-4 md:px-8 xl:px-10 overflow-x-auto">
-        {!data?.length && <h1 className="text-center text-red-500 font-semibold text-2xl">No Data Found</h1>}
+        {!data?.length && (
+          <h1 className="text-center text-red-500 font-semibold text-2xl">
+            No Data Found
+          </h1>
+        )}
         <table className="w-full whitespace-nowrap">
           <thead>
             <tr className="h-16 w-full text-md leading-none text-gray-600">

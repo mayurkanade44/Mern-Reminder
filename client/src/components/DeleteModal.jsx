@@ -10,11 +10,13 @@ import { useNavigate } from "react-router-dom";
 const DeleteModal = ({ open, setOpen, onClose, id }) => {
   const navigate = useNavigate();
   const [deleteReminder, { isLoading }] = useDeleteReminderMutation();
+  const { refetch } = useAllRemindersQuery();
 
   const handleDelete = async () => {
     try {
       const res = await deleteReminder(id).unwrap();
       toast.success(res.msg);
+      refetch();
       navigate("/dashboard");
     } catch (error) {
       console.log(error);

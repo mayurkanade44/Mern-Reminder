@@ -5,6 +5,7 @@ import fileUpload from "express-fileupload";
 import path from "path";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
+import morgan from "morgan";
 
 import userRoutes from "./routes/userRoute.js";
 import reminderRoutes from "./routes/reminderRoutes.js";
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(fileUpload({ useTempFiles: true }));
+if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
 
 app.use("/api/user", userRoutes);
 app.use("/api/reminder", reminderRoutes);
@@ -29,7 +31,6 @@ app.use("/api/reminder", reminderRoutes);
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();
   app.use(express.static(path.join(__dirname, "/client/dist")));
-
   app.get("*", (req, res) =>
     res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"))
   );
