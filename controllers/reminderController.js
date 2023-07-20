@@ -75,9 +75,13 @@ export const allReminders = async (req, res) => {
   if (search) query.title = { $regex: search, $options: "i" };
   if (category && category !== "All Categories") query.category = category;
   try {
-    const reminders = await Reminder.find(query);
+    const page = Number(req.query.page) || 1;
+    const count = await Reminder.countDocuments({ ...query });
+    const reminders = await Reminder.find(query)
+      .skip(10 * (page - 1))
+      .limit(10);
 
-    return res.json(reminders);
+    return res.json({ reminders, pages: Math.ceil(count / 10) });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later." });

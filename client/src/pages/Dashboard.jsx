@@ -20,11 +20,13 @@ const Dashboard = () => {
   const [tempSearch, setTempSearch] = useState("");
   const [search, setSearch] = useState("");
   const [openCategory, setOpenCategory] = useState(false);
+  const [page, setPage] = useState(1);
   const [searchCategory, setSearchCategory] = useState("All Categories");
 
-  const { data, isLoading, refetch } = useAllRemindersQuery({
+  const { data, isLoading, isFetching, refetch } = useAllRemindersQuery({
     search,
     category: searchCategory,
+    page,
   });
 
   const debounce = () => {
@@ -34,15 +36,18 @@ const Dashboard = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         setSearch(e.target.value);
+        setPage(1);
       }, 1000);
     };
   };
 
   const optimizedDebounce = useMemo(() => debounce(), []);
 
+  const pages = Array.from({ length: data?.pages }, (_, index) => index + 1);
+
   return (
     <div className="px-6 my-2 w-full">
-      {isLoading && <Loading />}
+      {(isLoading || isFetching) && <Loading />}
       <div className="flex justify-around">
         <div className="h-20 w-60 bg-green-500 flex flex-col items-center justify-center rounded-lg">
           <h4 className="text-2xl font-bold text-white">Total</h4>
@@ -132,7 +137,7 @@ const Dashboard = () => {
         </div>
       </div>
       <div className="bg-white px-4 md:px-8 xl:px-10 overflow-x-auto">
-        {!data?.length && (
+        {data?.reminders?.length < 1 && (
           <h1 className="text-center text-red-500 font-semibold text-2xl">
             No Data Found
           </h1>
@@ -148,7 +153,7 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody className="w-full">
-            {data?.map((reminder, index) => (
+            {data?.reminders?.map((reminder, index) => (
               <tr
                 key={reminder._id}
                 className="h-14 text-sm leading-none text-gray-700 border-b border-t border-gray-200 bg-white hover:bg-gray-100"
@@ -188,6 +193,24 @@ const Dashboard = () => {
             ))}
           </tbody>
         </table>
+        {pages.length > 1 && (
+          <nav aria-label="Page navigation example ">
+            <ul className="list-style-none flex justify-center mt-2">
+              {pages.map((item) => (
+                <li className="pr-1" key={item}>
+                  <button
+                    className={`relative block rounded px-3 py-1.5 text-sm transition-all duration-30  ${
+                      page === item ? "bg-blue-400" : "bg-neutral-700"
+                    } text-white hover:bg-blue-400`}
+                    onClick={() => setPage(item)}
+                  >
+                    {item}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
       </div>
     </div>
   );
