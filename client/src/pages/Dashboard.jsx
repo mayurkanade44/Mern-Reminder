@@ -177,7 +177,7 @@ const Dashboard = () => {
                   </p>
                 </td>
                 <td>
-                  <p className="mr-10">{reminder.notes}</p>
+                  <p className="mr-10">{reminder.notes?.substring(0, 20)}</p>
                 </td>
                 <td>
                   <div className="flex items-center">
@@ -194,7 +194,7 @@ const Dashboard = () => {
           </tbody>
         </table>
         {pages.length > 1 && (
-          <nav aria-label="Page navigation example ">
+          <nav>
             <ul className="list-style-none flex justify-center mt-2">
               {pages.map((item) => (
                 <li className="pr-1" key={item}>
