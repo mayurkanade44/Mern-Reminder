@@ -9,27 +9,18 @@ import { Loading } from "../components";
 
 const Profile = () => {
   const { data: profile, isLoading: profileLoading } = useAllCategoriesQuery();
-  const [searchParams] = useSearchParams();
   const [update, { isLoading }] = useUpdateUserMutation();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
     password: "",
     emailList: "",
-    verificationToken: "",
-    email: "",
   });
-
-  useEffect(() => {
-    setForm((prev) => ({
-      ...prev,
-      verificationToken: searchParams.get("token"),
-      email: searchParams.get("email"),
-    }));
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (form.emailList.split(",").length > 2)
+      return toast.error("Upto 2 emails are allowed");
 
     try {
       const res = await update(form).unwrap();
@@ -38,8 +29,6 @@ const Profile = () => {
       setForm({
         password: "",
         emailList: "",
-        verificationToken: "",
-        email: "",
       });
     } catch (error) {
       console.log(error);

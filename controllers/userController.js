@@ -121,6 +121,24 @@ export const loginUser = async (req, res) => {
   }
 };
 
+export const updateUser = async (req, res) => {
+  const { password, emailList } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    if (password) user.password = password;
+    emailList.split(",").map((email) => user.emailList.push(email));
+
+    await user.save();
+    return res.json({ msg: "Profile updated" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error, try again later." });
+  }
+};
+
 export const logout = async (req, res) => {
   res.cookie("token", "", {
     httpOnly: true,
