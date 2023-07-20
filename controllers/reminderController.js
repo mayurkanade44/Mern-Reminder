@@ -30,7 +30,7 @@ export const addReminder = async (req, res) => {
     } else {
       for (let i = 1; i <= reminderStart; i++) {
         expiryMonths.push(
-          new Date(date.getFullYear(), date.getMonth() - i, 2)
+          new Date(date.getFullYear(), date.getMonth() - i, 1)
             .toISOString()
             .split("T")[0]
         );
@@ -78,6 +78,7 @@ export const allReminders = async (req, res) => {
     const page = Number(req.query.page) || 1;
     const count = await Reminder.countDocuments({ ...query });
     const reminders = await Reminder.find(query)
+      .sort("-createdAt")
       .skip(10 * (page - 1))
       .limit(10);
 
@@ -153,7 +154,7 @@ export const editReminder = async (req, res) => {
     } else {
       for (let i = 1; i <= reminderStart; i++) {
         expiryMonths.push(
-          new Date(date.getFullYear(), date.getMonth() - i, 2)
+          new Date(date.getFullYear(), date.getMonth() - i, 1)
             .toISOString()
             .split("T")[0]
         );
@@ -422,7 +423,7 @@ export const autoRenew = async (req, res) => {
             new Date(
               expirationDate.getFullYear(),
               expirationDate.getMonth() - i,
-              2
+              1
             )
               .toISOString()
               .split("T")[0]

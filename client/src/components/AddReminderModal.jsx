@@ -19,7 +19,7 @@ const initialState = {
   renew: "Monthly",
 };
 
-const AddReminderModal = ({ open, onClose, data, refetch }) => {
+const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
   const [formValue, setFormValue] = useState(initialState);
   const [newReminder, { isLoading }] = useNewReminderMutation();
   const { reminderModal } = useSelector((store) => store.auth);
@@ -68,6 +68,7 @@ const AddReminderModal = ({ open, onClose, data, refetch }) => {
         res = await newReminder(form).unwrap();
       }
       refetch();
+      statsRefetch();
       setFormValue(initialState);
       toast.success(res.msg);
       onClose();

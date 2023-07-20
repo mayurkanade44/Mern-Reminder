@@ -14,7 +14,7 @@ const Dashboard = () => {
   const { reminderModal } = useSelector((store) => store.auth);
   const { data: categories, refetch: categoryRefetch } =
     useAllCategoriesQuery();
-  const { data: stats } = useReminderStatsQuery();
+  const { data: stats, refetch: statsRefetch } = useReminderStatsQuery();
   const dispatch = useDispatch();
 
   const [tempSearch, setTempSearch] = useState("");
@@ -120,6 +120,7 @@ const Dashboard = () => {
                 <AddReminderModal
                   open={reminderModal.show}
                   refetch={refetch}
+                  statsRefetch={statsRefetch}
                   onClose={() =>
                     dispatch(handleReminder({ show: false, edit: false }))
                   }

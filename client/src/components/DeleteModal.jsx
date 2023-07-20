@@ -11,12 +11,14 @@ const DeleteModal = ({ open, setOpen, onClose, id }) => {
   const navigate = useNavigate();
   const [deleteReminder, { isLoading }] = useDeleteReminderMutation();
   const { refetch } = useAllRemindersQuery();
+  const { refetch: statsRefetch } = useReminderStatsQuery();
 
   const handleDelete = async () => {
     try {
       const res = await deleteReminder(id).unwrap();
       toast.success(res.msg);
       refetch();
+      statsRefetch();
       navigate("/dashboard");
     } catch (error) {
       console.log(error);
