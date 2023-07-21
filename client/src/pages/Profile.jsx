@@ -14,13 +14,21 @@ const Profile = () => {
 
   const [form, setForm] = useState({
     password: "",
-    emailList: "",
+    email1: "",
+    email2: "",
   });
+
+  useEffect(() => {
+    if (profile?.emailList.length > 1) {
+      setForm({
+        email1: profile?.emailList[1],
+        email2: profile?.emailList[2],
+      });
+    }
+  }, [profile]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.emailList.split(",").length > 2)
-      return toast.error("Upto 2 emails are allowed");
 
     try {
       const res = await update(form).unwrap();
@@ -28,7 +36,8 @@ const Profile = () => {
       navigate("/");
       setForm({
         password: "",
-        emailList: "",
+        email1: "",
+        email2: "",
       });
     } catch (error) {
       console.log(error);
@@ -66,24 +75,38 @@ const Profile = () => {
           <div className="mb-5 gap-2">
             <div className="flex mb-1">
               <label
-                htmlFor="emailList"
+                htmlFor="email2"
                 className="pr-2 w-36 text-xl font-semibold text-gray-800"
               >
-                Email List
+                Email 1
               </label>
               <input
                 type="email"
-                value={form.emailList}
+                value={form.email1}
                 onChange={(e) =>
-                  setForm((prev) => ({ ...prev, emailList: e.target.value }))
+                  setForm((prev) => ({ ...prev, email1: e.target.value }))
                 }
                 className="border w-full border-gray-300 dark:border-gray-700 pl-2 py-1 shadow-sm rounded text-sm focus:outline-none focus:border-indigo-700 "
-                placeholder="Email ids for reminder notification"
+                placeholder="Email id for reminder notification"
               />
             </div>
-            <p className="flex justify-end text-xs text-red-600">
-              Upto 2 Email ids are allowed
-            </p>
+            <div className="flex mb-1">
+              <label
+                htmlFor="email1"
+                className="pr-2 w-36 text-xl font-semibold text-gray-800"
+              >
+                Email 2
+              </label>
+              <input
+                type="email"
+                value={form.email2}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, email2: e.target.value }))
+                }
+                className="border w-full border-gray-300 dark:border-gray-700 pl-2 py-1 shadow-sm rounded text-sm focus:outline-none focus:border-indigo-700 "
+                placeholder="Email id for reminder notification"
+              />
+            </div>
           </div>
           <div className="flex justify-center">
             <button

@@ -122,14 +122,15 @@ export const loginUser = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-  const { password, emailList } = req.body;
+  const { password, email1, email2 } = req.body;
 
   try {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ msg: "User not found" });
 
     if (password) user.password = password;
-    emailList.split(",").map((email) => user.emailList.push(email));
+    const emailList = [user.email, email1, email2];
+    user.emailList = emailList;
 
     await user.save();
     return res.json({ msg: "Profile updated" });
