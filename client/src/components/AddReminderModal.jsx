@@ -46,6 +46,8 @@ const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formValue.title || !formValue.expirationDate)
+      return toast.error("Please provide all values");
 
     const form = new FormData();
 
@@ -64,6 +66,7 @@ const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
       let res;
       if (reminderModal.edit) {
         res = await updateReminder({ data: form, id: data._id }).unwrap();
+        onClose();
       } else {
         res = await newReminder(form).unwrap();
       }
@@ -71,7 +74,6 @@ const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
       statsRefetch();
       setFormValue(initialState);
       toast.success(res.msg);
-      onClose();
     } catch (error) {
       console.log(error);
       toast.error(error?.data?.msg || error.error);

@@ -3,6 +3,7 @@ import Modal from "./Modal";
 import {
   useAllRemindersQuery,
   useDeleteReminderMutation,
+  useReminderStatsQuery,
 } from "../redux/reminderSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +11,11 @@ import { useNavigate } from "react-router-dom";
 const DeleteModal = ({ open, setOpen, onClose, id }) => {
   const navigate = useNavigate();
   const [deleteReminder, { isLoading }] = useDeleteReminderMutation();
-  const { refetch } = useAllRemindersQuery();
+  const { refetch } = useAllRemindersQuery({
+    search: "",
+    category: "All Categories",
+    page: 1,
+  });
   const { refetch: statsRefetch } = useReminderStatsQuery();
 
   const handleDelete = async () => {

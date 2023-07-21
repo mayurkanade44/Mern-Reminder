@@ -28,18 +28,22 @@ const Reminder = () => {
   return (
     <div className="mx-4 lg:mx-60">
       {isLoading && <Loading />}
-      <AddReminderModal
-        open={reminderModal.show}
-        onClose={() => dispatch(handleReminder({ show: false, edit: false }))}
-        data={data}
-        refetch={refetch}
-      />
-      <DeleteModal
-        open={openDelete}
-        setOpen={setOpenDelete}
-        onClose={() => setOpenDelete(false)}
-        id={data?._id}
-      />
+      {reminderModal.show && (
+        <AddReminderModal
+          open={reminderModal.show}
+          onClose={() => dispatch(handleReminder({ show: false, edit: false }))}
+          data={data}
+          refetch={refetch}
+        />
+      )}
+      {openDelete && (
+        <DeleteModal
+          open={openDelete}
+          setOpen={setOpenDelete}
+          onClose={() => setOpenDelete(false)}
+          id={data?._id}
+        />
+      )}
       <div className="my-6 lg:mt-10 mx-auto flex flex-col md:flex-row items-start md:items-center justify-between pb-4">
         <h4 className="text-2xl font-bold">{data?.title}</h4>
         <div className="mt-2 md:mt-0 flex">
