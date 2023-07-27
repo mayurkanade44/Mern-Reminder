@@ -25,6 +25,6 @@ router
 router.route("/reminderFile").get(reminderFile);
 router.route("/expiryFile").get(expiryFile);
 router.route("/sendAlert").get(reminderAlert);
-router.route("/autoRenew").patch(autoRenew);
+router.route("/autoRenew").put(autoRenew);
 
 export default router;

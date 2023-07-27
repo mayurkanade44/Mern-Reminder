@@ -251,10 +251,10 @@ export const reminderFile = async (req, res) => {
           });
         });
 
-        await workbook.xlsx.writeFile(`./tmp/${user.name}_upcomingMonth.xlsx`);
+        await workbook.xlsx.writeFile(`./tmp/${user.name}_UpcomingMonth.xlsx`);
 
         const result = await cloudinary.uploader.upload(
-          `tmp/${user.name}_upcomingMonth.xlsx`,
+          `tmp/${user.name}_UpcomingMonth.xlsx`,
           {
             resource_type: "raw",
             use_filename: true,
@@ -266,7 +266,7 @@ export const reminderFile = async (req, res) => {
         userReminder.reminderFiles.push(result.secure_url);
         await userReminder.save();
 
-        fs.unlinkSync(`./tmp/${user.name}_upcomingMonth.xlsx`);
+        fs.unlinkSync(`./tmp/${user.name}_UpcomingMonth.xlsx`);
       }
     }
 
@@ -319,10 +319,10 @@ export const expiryFile = async (req, res) => {
           });
         });
 
-        await workbook.xlsx.writeFile(`./tmp/${user.name}_thisMonth.xlsx`);
+        await workbook.xlsx.writeFile(`./tmp/${user.name}_ThisMonth.xlsx`);
 
         const result = await cloudinary.uploader.upload(
-          `tmp/${user.name}_thisMonth.xlsx`,
+          `tmp/${user.name}_ThisMonth.xlsx`,
           {
             resource_type: "raw",
             use_filename: true,
@@ -334,7 +334,7 @@ export const expiryFile = async (req, res) => {
         userReminder.reminderFiles.push(result.secure_url);
         await userReminder.save();
 
-        fs.unlinkSync(`./tmp/${user.name}_thisMonth.xlsx`);
+        fs.unlinkSync(`./tmp/${user.name}_ThisMonth.xlsx`);
       }
     }
 
@@ -347,13 +347,15 @@ export const expiryFile = async (req, res) => {
 
 export const reminderAlert = async (req, res) => {
   try {
-    const allUser = await User.find().select("name emailList reminderFile");
+    const allUser = await User.find().select("name emailList reminderFiles");
 
     for (let user of allUser) {
       let attach = [];
-      if (user.reminderFiles.length) {
+      if (user.reminderFiles?.length) {
         for (let reminderFile of user.reminderFiles) {
-          const fileType = reminderFile.split(".").pop();
+          let file = reminderFile.split(".");
+          const fileType = file.pop();
+          const fileName = file[file.length - 1].split("/").pop();
           const result = await axios.get(reminderFile, {
             responseType: "arraybuffer",
           });
@@ -363,7 +365,7 @@ export const reminderAlert = async (req, res) => {
 
           const attachObj = {
             content: base64File,
-            filename: `${user.name}.${fileType}`,
+            filename: `${fileName}.${fileType}`,
             type: `application/${fileType}`,
             disposition: "attachment",
           };
@@ -375,13 +377,17 @@ export const reminderAlert = async (req, res) => {
         const msg = {
           to: user.emailList,
           from: { email: "noreply.pestbytes@gmail.com", name: "Reminder" },
-          template_id: "d-458b69d16c73496f92254407bc4c50c7",
+          dynamic_template_data: {
+            name: user.name,
+          },
+          template_id: "d-d7b8ca140f5b47828ff5711f2bdde959",
           attachments: attach,
         };
         await sgMail.send(msg);
+        user.reminderFiles = [];
+        await user.save();
+        console.log(`Email sent to ${user.name}`);
       }
-      user.reminderFiles = [];
-      await user.save();
     }
 
     return res.json({ msg: "Email Sent" });
