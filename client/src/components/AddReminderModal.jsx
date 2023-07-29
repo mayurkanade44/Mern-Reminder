@@ -66,13 +66,13 @@ const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
       let res;
       if (reminderModal.edit) {
         res = await updateReminder({ data: form, id: data._id }).unwrap();
-        onClose();
       } else {
         res = await newReminder(form).unwrap();
       }
       refetch();
       statsRefetch();
       setFormValue(initialState);
+      onClose();
       toast.success(res.msg);
     } catch (error) {
       console.log(error);

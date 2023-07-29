@@ -14,8 +14,8 @@ export const reminderSlice = apiSlice.injectEndpoints({
         url: "/api/reminder/allReminders",
         params: { search, category, page },
       }),
-      keepUnusedDataFor: 5,
       providesTags: ["Reminders"],
+      keepUnusedDataFor: 5,
     }),
     singleReminder: builder.query({
       query: (id) => ({
@@ -35,13 +35,14 @@ export const reminderSlice = apiSlice.injectEndpoints({
         url: `/api/reminder/singleReminder/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Reminders"],
     }),
     reminderStats: builder.query({
       query: () => ({
         url: "/api/reminder/reminderStats",
       }),
-      keepUnusedDataFor: 5,
       providesTags: ["Reminders"],
+      keepUnusedDataFor: 5,
     }),
   }),
 });
