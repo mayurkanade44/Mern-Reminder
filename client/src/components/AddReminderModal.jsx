@@ -69,10 +69,10 @@ const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
       } else {
         res = await newReminder(form).unwrap();
       }
+      onClose();
       refetch();
       statsRefetch();
       setFormValue(initialState);
-      onClose();
       toast.success(res.msg);
     } catch (error) {
       console.log(error);
