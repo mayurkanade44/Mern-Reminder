@@ -1,10 +1,10 @@
-# Reminder (https://reminder.sat9.in)
+# Reminder Portal
 
 Reminder is MERN stack application to track contracts, licenses, certifications, warranties, and other important documents. Automate expiration reminders with Email & WhatsApp reminders, to avoid follow-ups and missed date penalties. Dashboard makes all reminders easy to organize, prioritize and track expiration effectively.
 
 ## Demo
 
-Project in action: [Pestbytes](https://reminder.sat9.in/)
+Project in action: [Reminder](https://reminder.sat9.in/)
 
 Video: [Youtube](https://youtube.com)
 

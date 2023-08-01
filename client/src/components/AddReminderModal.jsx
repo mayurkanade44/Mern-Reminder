@@ -15,8 +15,7 @@ const initialState = {
   reminderDue: "1",
   notes: "",
   documents: [],
-  autoRenew: false,
-  renew: "Monthly",
+  renew: "Disabled",
 };
 
 const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
@@ -38,7 +37,6 @@ const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
           .slice(0, 10),
         reminderDue: data.expiryMonths.length,
         documents: [],
-        autoRenew: data.autoRenew,
         renew: data.renew,
       });
     }
@@ -56,8 +54,9 @@ const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
     form.set("expirationDate", new Date(formValue.expirationDate));
     form.set("reminderDue", formValue.reminderDue);
     form.set("notes", formValue.notes);
-    form.set("autoRenew", formValue.autoRenew);
-    if (formValue.autoRenew) form.set("renew", formValue.renew);
+    if (formValue.renew === "Disabled") form.set("autoRenew", false);
+    else form.set("autoRenew", true);
+    form.set("renew", formValue.renew);
     formValue.documents.forEach((file) => {
       form.append("documents", file);
     });
@@ -90,8 +89,6 @@ const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
         ...prev,
         documents: Array.from(e.target.files),
       }));
-    } else if (name === "autoRenew") {
-      setFormValue((prev) => ({ ...prev, autoRenew: !prev.autoRenew }));
     } else setFormValue((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -217,30 +214,20 @@ const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
           </div>
           <div className="md:w-2/4 lg:w-2/5 flex">
             <div className="flex items-center mr-2">
-              <div className="bg-white dark:bg-gray-800 border rounded-sm border-gray-400 dark:border-gray-700 w-5 h-5 flex flex-shrink-0 justify-center items-center relative">
-                <input
-                  type="checkbox"
-                  className="checkbox absolute cursor-pointer w-full h-full"
-                  name="autoRenew"
-                  onChange={handleChange}
-                />
-                <div className="check-icon hidden bg-indigo-700 text-white rounded-sm"></div>
-              </div>
               <p className="ml-3 text-lg font-semibold text-gray-800">
                 Auto Renew
               </p>
             </div>
-            {formValue.autoRenew && (
-              <select
-                name="renew"
-                className="border w-20 h-6 mt-1 border-gray-300 dark:border-gray-700  rounded text-sm focus:outline-none focus:border-indigo-700 "
-                value={formValue.renew}
-                onChange={handleChange}
-              >
-                <option value="Monthly">Monthly</option>
-                <option value="Yearly">Yearly</option>
-              </select>
-            )}
+            <select
+              name="renew"
+              className="border w-24 h-6 mt-1 border-gray-300 dark:border-gray-700  rounded text-sm focus:outline-none focus:border-indigo-700 "
+              value={formValue.renew}
+              onChange={handleChange}
+            >
+              <option value="Disabled">Disabled</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Yearly">Yearly</option>
+            </select>
           </div>
         </div>
         <div className="flex justify-center">

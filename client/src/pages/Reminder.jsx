@@ -104,7 +104,7 @@ const Reminder = () => {
             <h1 className="text-lg font-semibold mr-2">Auto Renew</h1>
             <div className="bg-green-400 h-7 mb-6 rounded-md flex items-center justify-center">
               <span className="text-sm text-white font-semibold mx-2">
-                {data?.autoRenew ? data?.renew : "Off"}
+                {data?.renew}
               </span>
             </div>
           </div>
