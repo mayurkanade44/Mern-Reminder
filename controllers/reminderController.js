@@ -117,6 +117,8 @@ export const singleReminder = async (req, res) => {
     const reminder = await Reminder.findById(id);
     if (!reminder) return res.status(404).json({ msg: "Not found" });
 
+    console.log(reminder.id);
+
     return res.json(reminder);
   } catch (error) {
     console.log(error);
@@ -379,6 +381,8 @@ export const reminderAlert = async (req, res) => {
           from: { email: "noreply.pestbytes@gmail.com", name: "Reminder" },
           dynamic_template_data: {
             name: user.name,
+            description:
+              "You have received these auto generated files for your action, its a updated reminder for the set reminders.",
           },
           template_id: "d-d7b8ca140f5b47828ff5711f2bdde959",
           attachments: attach,
@@ -387,6 +391,18 @@ export const reminderAlert = async (req, res) => {
         user.reminderFiles = [];
         await user.save();
         console.log(`Email sent to ${user.name}`);
+      } else {
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+        const msg = {
+          to: user.emailList,
+          from: { email: "noreply.pestbytes@gmail.com", name: "Reminder" },
+          dynamic_template_data: {
+            name: user.name,
+            description: "There is no reminder this month.",
+          },
+          template_id: "d-d7b8ca140f5b47828ff5711f2bdde959",
+        };
+        await sgMail.send(msg);
       }
     }
 
