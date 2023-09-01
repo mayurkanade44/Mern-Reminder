@@ -1,33 +1,46 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import { AddReminderModal, CategoryModal, Loading } from "../components";
 import {
   useAllRemindersQuery,
   useReminderStatsQuery,
 } from "../redux/reminderSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { handleReminder } from "../redux/authSlice";
-import { useAllCategoriesQuery } from "../redux/userSlice";
+import { handleReminder, logoutUser } from "../redux/authSlice";
+import { useAllCategoriesQuery, useLogoutMutation } from "../redux/userSlice";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   const { reminderModal } = useSelector((store) => store.auth);
-  const { data: categories, refetch: categoryRefetch } =
-    useAllCategoriesQuery();
-  const { data: stats, refetch: statsRefetch } = useReminderStatsQuery();
-  const dispatch = useDispatch();
-
   const [tempSearch, setTempSearch] = useState("");
   const [search, setSearch] = useState("");
   const [openCategory, setOpenCategory] = useState(false);
   const [page, setPage] = useState(1);
   const [searchCategory, setSearchCategory] = useState("All Categories");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const { data, isLoading, isFetching, refetch } = useAllRemindersQuery({
+  const { data: categories, refetch: categoryRefetch } =
+    useAllCategoriesQuery();
+  const { data: stats, refetch: statsRefetch } = useReminderStatsQuery();
+  const [logout] = useLogoutMutation();
+  const { data, isLoading, isFetching, refetch, error } = useAllRemindersQuery({
     search,
     category: searchCategory,
     page,
   });
+
+  useEffect(() => {
+    if (error && error.status === 401) {
+      async () => {
+        await logout();
+        dispatch(logoutUser());
+        navigate("/");
+        toast.error("Unauthorized! Logging Out");
+      };
+    }
+  }, [error]);
 
   const debounce = () => {
     let timeoutId;

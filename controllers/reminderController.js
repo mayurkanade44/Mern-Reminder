@@ -117,8 +117,6 @@ export const singleReminder = async (req, res) => {
     const reminder = await Reminder.findById(id);
     if (!reminder) return res.status(404).json({ msg: "Not found" });
 
-    console.log(reminder.id);
-
     return res.json(reminder);
   } catch (error) {
     console.log(error);
@@ -186,6 +184,8 @@ export const editReminder = async (req, res) => {
     reminder.expiryMonths = expiryMonths;
     reminder.category = category;
     reminder.notes = notes;
+    reminder.autoRenew = autoRenew;
+    reminder.renew = renew;
 
     await reminder.save();
 
