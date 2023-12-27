@@ -226,6 +226,7 @@ const AddReminderModal = ({ open, onClose, data, refetch, statsRefetch }) => {
             >
               <option value="Disabled">Disabled</option>
               <option value="Monthly">Monthly</option>
+              <option value="Quarterly">Quarterly</option>
               <option value="Yearly">Yearly</option>
             </select>
           </div>

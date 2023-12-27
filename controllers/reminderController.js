@@ -20,6 +20,7 @@ export const addReminder = async (req, res) => {
     const expiryMonths = [];
 
     if (autoRenew && renew === "Yearly") reminderStart = 3;
+    if (autoRenew && renew === "Quarterly") reminderStart = 1;
 
     if (autoRenew && renew === "Monthly") {
       req.body.expirationDate = new Date(
@@ -144,6 +145,7 @@ export const editReminder = async (req, res) => {
     const expiryMonths = [];
 
     if (autoRenew && renew === "Yearly") reminderStart = 3;
+    if (autoRenew && renew === "Quarterly") reminderStart = 1;
 
     if (autoRenew && renew === "Monthly") {
       reminder.expirationDate = new Date(
@@ -432,6 +434,24 @@ export const autoRenew = async (req, res) => {
           currentDate.getDate()
         );
         reminder.expirationDate = expirationDate;
+        await reminder.save();
+      } else if (reminder.renew === "Quarterly") {
+        let expirationDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 3,
+          currentDate.getDate()
+        );
+        const expiryMonths = [
+          new Date(
+            expirationDate.getFullYear(),
+            expirationDate.getMonth() - 1,
+            1
+          )
+            .toISOString()
+            .split("T")[0],
+        ];
+        reminder.expirationDate = expirationDate;
+        reminder.expiryMonths = expiryMonths;
         await reminder.save();
       } else if (reminder.renew === "Yearly") {
         let expirationDate = new Date(
