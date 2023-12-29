@@ -83,7 +83,7 @@ export const allReminders = async (req, res) => {
       .skip(10 * (page - 1))
       .limit(10);
 
-    return res.json({ reminders, pages: Math.ceil(count / 10) });
+    return res.json({ reminders, pages: Math.min(10, Math.ceil(count / 10)) });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later." });

@@ -209,7 +209,7 @@ const Dashboard = () => {
         </table>
         {pages.length > 1 && (
           <nav>
-            <ul className="list-style-none flex justify-center mt-2">
+            <ul className="list-style-none flex justify-center mt-8 mb-5">
               {pages.map((item) => (
                 <li className="pr-1" key={item}>
                   <button
