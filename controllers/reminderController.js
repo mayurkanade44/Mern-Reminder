@@ -1,11 +1,11 @@
+import sgMail from "@sendgrid/mail";
+import axios from "axios";
+import { v2 as cloudinary } from "cloudinary";
+import exceljs from "exceljs";
+import fs from "fs";
 import Reminder from "../models/reminderModel.js";
 import User from "../models/userModel.js";
 import { capitalLetter, uploadFiles } from "../utils/helper.js";
-import exceljs from "exceljs";
-import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
-import axios from "axios";
-import sgMail from "@sendgrid/mail";
 
 export const addReminder = async (req, res) => {
   const { title, category, expirationDate, reminderDue, autoRenew, renew } =
@@ -393,21 +393,8 @@ export const reminderAlert = async (req, res) => {
         user.reminderFiles = [];
         await user.save();
         console.log(`Email sent to ${user.name}`);
-      } else {
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        const msg = {
-          to: user.emailList,
-          from: { email: "noreply.pestbytes@gmail.com", name: "Reminder" },
-          dynamic_template_data: {
-            name: user.name,
-            description: "There is no reminder this month.",
-          },
-          template_id: "d-d7b8ca140f5b47828ff5711f2bdde959",
-        };
-        await sgMail.send(msg);
       }
     }
-
     return res.json({ msg: "Email Sent" });
   } catch (error) {
     console.log(error);
